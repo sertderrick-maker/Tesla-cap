@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Disclosures — TeslasCap</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.383.0/lucide.min.js"></script>
+<style>
+:root {
+  --bg: #ffffff;
+  --surface: #f7f7f7;
+  --card: #ffffff;
+  --border: #e8e8e8;
+  --border2: #d4d4d4;
+  --red: #e31937;
+  --red-dark: #b81530;
+  --red-bg: #fff0f2;
+  --red-border: rgba(227,25,55,0.15);
+  --text: #171a20;
+  --text2: #3e4044;
+  --muted: #6b6d72;
+  --light: #f4f4f4;
+  --shadow: 0 4px 24px rgba(0,0,0,0.07);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.11);
+  --radius: 10px;
+  --font: 'Outfit', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:#f0f0f0;}::-webkit-scrollbar-thumb{background:#d0d0d0;border-radius:3px;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(255,255,255,0.95);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);height:62px;display:flex;align-items:center;padding:0 48px;gap:36px;}
+.nav-logo{font-size:19px;font-weight:800;letter-spacing:-0.02em;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.nav-t{background:var(--red);color:#fff;font-weight:900;font-size:14px;width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;}
+.nav-links{display:flex;gap:30px;list-style:none;flex:1;}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:13px;font-weight:500;transition:color .2s;}
+.nav-links a:hover{color:var(--red);}
+.nav-right{display:flex;gap:12px;margin-left:auto;align-items:center;}
+.nav-sign{font-size:13px;font-weight:500;color:var(--text2);text-decoration:none;transition:color .2s;}
+.nav-sign:hover{color:var(--red);}
+.nav-btn{background:var(--red);color:#fff;padding:9px 24px;border-radius:5px;font-size:13px;font-weight:700;text-decoration:none;transition:background .2s;}
+.nav-btn:hover{background:var(--red-dark);}
+
+/* PAGE HEADER */
+.page-header{padding:120px 60px 60px;background:var(--surface);border-bottom:1px solid var(--border);margin-top:62px;}
+.page-title{font-size:48px;font-weight:800;letter-spacing:-0.02em;color:var(--text);margin-bottom:16px;}
+.page-subtitle{font-size:18px;color:var(--muted);max-width:600px;line-height:1.7;}
+
+/* SECTIONS */
+.section{padding:80px 60px;}
+.sec-white{background:#fff;}
+.content{max-width:800px;margin:0 auto;}
+.content h2{font-size:24px;font-weight:700;color:var(--text);margin:40px 0 16px;}
+.content h3{font-size:18px;font-weight:700;color:var(--text);margin:24px 0 12px;}
+.content p{color:var(--muted);line-height:1.8;margin-bottom:16px;}
+.content ul{margin-left:20px;margin-bottom:16px;}
+.content li{color:var(--muted);line-height:1.8;margin-bottom:8px;}
+.disclosure-box{background:var(--red-bg);border:1.5px solid var(--red-border);border-radius:var(--radius);padding:20px;margin:20px 0;}
+
+/* FOOTER */
+footer{background:#fff;border-top:1px solid var(--border);padding:60px 60px 36px;}
+.footer-red-bar{height:3px;background:var(--red);margin:-60px -60px 56px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px;}
+.footer-brand-name{font-size:20px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.footer-brand p{color:var(--muted);font-size:13px;max-width:260px;line-height:1.7;margin-bottom:10px;}
+.footer-col h4{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--text);font-weight:700;margin-bottom:16px;}
+.footer-col a{display:block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:10px;transition:color .15s;}
+.footer-col a:hover{color:var(--red);}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:24px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);}
+
+@media(max-width:768px){
+  nav{padding:0 24px;}
+  .page-header{padding:100px 24px 40px;}
+  .section{padding:48px 24px;}
+}
+</style>
+<script src="page-transition-loader.js"></script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo"><span class="nav-t">T</span>TeslasCap</a>
+  <ul class="nav-links">
+    <li><a href="index.html#invest">Invest</a></li>
+    <li><a href="index.html#stocks">Stocks</a></li>
+    <li><a href="index.html#inventory">Inventory</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="login.html" class="nav-sign">Sign In</a>
+    <a href="register.html" class="nav-btn">Get Started</a>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <h1 class="page-title">Disclosures</h1>
+  <p class="page-subtitle">Important information about TeslasCap's services, risks, and regulatory compliance.</p>
+</div>
+
+<!-- CONTENT -->
+<section class="section sec-white">
+  <div class="content">
+    <h2>Investment Risk Disclosure</h2>
+    <div class="disclosure-box">
+      <i data-lucide="alert-triangle" style="width:20px;height:20px;display:inline;margin-right:8px;vertical-align:middle;color:var(--red);"></i><strong>Past performance does not guarantee future results.</strong> All investments carry risk, including potential loss of principal. The value of your investment may fluctuate, and you may lose some or all of your investment.
+    </div>
+
+    <h2>1. Securities Disclaimer</h2>
+    <p>TeslasCap is a registered investment advisor. Our investment advisory services are offered through our registered representatives. All securities transactions are executed through licensed broker-dealers.</p>
+
+    <h2>2. Cryptocurrency Risks</h2>
+    <p>Cryptocurrency is highly volatile and speculative. The crypto market operates 24/7 with no circuit breakers. Prices can change dramatically in short periods. Cryptocurrency is not FDIC insured and carries significant risk of loss.</p>
+
+    <h2>3. Margin and Leverage</h2>
+    <p>If you use margin or leverage in your trading, you amplify both gains and losses. You may lose more than your initial investment. Margin calls may force liquidation of positions at unfavorable prices.</p>
+
+    <h2>4. Market Hours and Liquidity</h2>
+    <p>Stock market trading occurs during regular hours (9:30 AM - 4:00 PM ET). Extended hours trading has wider spreads and lower liquidity. Crypto trading is available 24/7 but with varying liquidity.</p>
+
+    <h2>5. Tax Implications</h2>
+    <p>You are responsible for understanding the tax implications of your investments. Short-term capital gains are taxed as ordinary income. We recommend consulting a tax professional about your specific situation.</p>
+
+    <h2>6. Conflicts of Interest</h2>
+    <p>TeslasCap may have business relationships with companies whose securities are available on our platform. We maintain policies to manage conflicts of interest and act in your best interest.</p>
+
+    <h2>7. Account Protection</h2>
+    <p>Cash and securities in your account are protected by SIPC up to $500,000 per account. Cryptocurrency holdings are not SIPC protected. We maintain additional insurance coverage for qualified accounts.</p>
+
+    <h2>8. Regulatory Compliance</h2>
+    <p>TeslasCap is regulated by the SEC and FINRA. All advisors are registered and subject to regulatory oversight.
+    <h2>9. Fees and Commissions</h2>
+    <p>TeslasCap charges a 0.5% annual management fee on assets under management. Additional fees may apply for certain services. See our fee schedule for complete details.</p>
+
+    <h2>10. Order Execution</h2>
+    <p>We execute orders at the best available price. However, market conditions, order size, and liquidity may affect execution price and timing. You acknowledge the risks of market orders versus limit orders.</p>
+
+    <h2>11. Technical Issues</h2>
+    <p>While we maintain high uptime standards, technical issues may prevent access to your account or execution of trades. We are not liable for losses resulting from system failures beyond our control.</p>
+
+    <h2>12. Cryptocurrency Wallet Security</h2>
+    <p>You are responsible for protecting your wallet credentials. Lost or compromised credentials cannot be recovered. We recommend using hardware wallets for large holdings.</p>
+
+    <h2>Contact Regulatory Bodies</h2>
+    <p>For questions about TeslasCap's regulatory status or to file a complaint:</p>
+    <ul>
+      <li>+1-800-TESLASCAP</li>
+  
+    </ul>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-red-bar"></div>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-brand-name"><span class="nav-t">T</span> TeslasCap</div>
+      <p>The all-in-one platform for Tesla investing, real-time stocks, crypto wallet, and premium EV inventory.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="about.html">About</a>
+      <a href="careers.html">Careers</a>
+      <a href="press.html">Press</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <a href="help-center.html">Help Center</a>
+      <a href="terms.html">Terms of Service</a>
+      <a href="api-docs.html">API Docs</a>
+      <a href="status.html">Status</a>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="disclosures.html">Disclosures</a>
+      <a href="cookies.html">Cookie Policy</a>
+      <a href="compliance.html">Compliance</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div>© 2026 TeslasCap. All rights reserved.</div>
+    <div>Invest. Trade. Drive.</div>
+  </div>
+</footer>
+
+<script>
+if (typeof lucide !== "undefined") {
+  lucide.createIcons();
+}
+</script>
+</body>
+</html>

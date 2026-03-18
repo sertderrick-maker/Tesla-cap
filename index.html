@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TeslasCap — Invest. Trade. Drive.</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.383.0/lucide.min.js"></script>
+<style>
+  .icon { display:inline-flex; align-items:center; justify-content:center; }
+  .icon svg { width:22px; height:22px; stroke-width:1.75; }
+  .feat-icon .icon svg { width:24px; height:24px; }
+  .qa-icon .icon svg { width:26px; height:26px; }
+  .side-header .icon svg { width:16px; height:16px; }
+</style>
+<style>
+:root {
+  --bg: #ffffff;
+  --surface: #f7f7f7;
+  --card: #ffffff;
+  --border: #e8e8e8;
+  --border2: #d4d4d4;
+  --red: #e31937;
+  --red-dark: #b81530;
+  --red-bg: #fff0f2;
+  --red-border: rgba(227,25,55,0.15);
+  --text: #171a20;
+  --text2: #3e4044;
+  --muted: #6b6d72;
+  --light: #f4f4f4;
+  --gain: #1a7f4b;
+  --gain-bg: #eaf7f1;
+  --loss: #cc2200;
+  --loss-bg: #fff0ee;
+  --shadow: 0 4px 24px rgba(0,0,0,0.07);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.11);
+  --radius: 10px;
+  --font: 'Outfit', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:#f0f0f0;}::-webkit-scrollbar-thumb{background:#d0d0d0;border-radius:3px;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(255,255,255,0.95);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);height:62px;display:flex;align-items:center;padding:0 48px;gap:36px;}
+.nav-logo{font-size:19px;font-weight:800;letter-spacing:-0.02em;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.nav-t{background:var(--red);color:#fff;font-weight:900;font-size:14px;width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;}
+.nav-links{display:flex;gap:30px;list-style:none;flex:1;}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:13px;font-weight:500;transition:color .2s;position:relative;padding-bottom:2px;}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:2px;background:var(--red);transform:scaleX(0);transition:transform .25s;border-radius:2px;}
+.nav-links a:hover{color:var(--red);}
+.nav-links a:hover::after{transform:scaleX(1);}
+.nav-right{display:flex;gap:12px;margin-left:auto;align-items:center;}
+.nav-sign{font-size:13px;font-weight:500;color:var(--text2);text-decoration:none;transition:color .2s;}
+.nav-sign:hover{color:var(--red);}
+.nav-btn{background:var(--red);color:#fff;padding:9px 24px;border-radius:5px;font-size:13px;font-weight:700;text-decoration:none;transition:background .2s,transform .15s;}
+.nav-btn:hover{background:var(--red-dark);transform:translateY(-1px);}
+
+/* TICKER */
+.ticker-bar{background:var(--text);color:#fff;padding:11px 0;overflow:hidden;border-top:3px solid var(--red);}
+.ticker-inner{display:flex;animation:scroll-left 30s linear infinite;width:max-content;}
+.ticker-item{display:flex;align-items:center;gap:8px;padding:0 36px;white-space:nowrap;font-family:var(--mono);font-size:12px;letter-spacing:.04em;border-right:1px solid rgba(255,255,255,0.12);}
+.ticker-sym{font-weight:700;}
+.ticker-up{color:#4ade80;}
+.ticker-dn{color:#f87171;}
+@keyframes scroll-left{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* HERO */
+.hero{position:relative;height:100vh;min-height:620px;display:flex;align-items:flex-end;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--red);z-index:3;}
+.hero-bg{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0) 30%,rgba(255,255,255,.75) 70%,rgba(255,255,255,1) 100%),url('https://images.unsplash.com/photo-1617788138017-80ad40651399?w=1800&h=1000&fit=crop') center/cover no-repeat;}
+.hero-content{position:relative;z-index:2;padding:0 80px 80px;text-align:center;width:100%;}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--red-border);border-radius:40px;padding:7px 18px;font-size:11px;font-weight:700;color:var(--red);letter-spacing:.08em;text-transform:uppercase;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.2);animation:livepulse 1.5s infinite;}
+@keyframes livepulse{0%,100%{box-shadow:0 0 0 3px rgba(34,197,94,.2);}50%{box-shadow:0 0 0 7px rgba(34,197,94,.06);}}
+.hero h1{font-size:clamp(52px,8vw,96px);font-weight:800;line-height:1.04;letter-spacing:-.04em;color:var(--text);margin-bottom:18px;}
+.hero h1 .red{color:var(--red);}
+.hero-sub{font-size:17px;color:var(--muted);max-width:500px;margin:0 auto 40px;font-weight:400;line-height:1.7;}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.btn-red{background:var(--red);color:#fff;padding:14px 38px;border-radius:6px;font-size:14px;font-weight:700;text-decoration:none;border:none;cursor:pointer;font-family:var(--font);transition:background .2s,transform .15s;display:inline-block;}
+.btn-red:hover{background:var(--red-dark);transform:translateY(-2px);}
+.btn-outline{background:transparent;color:var(--text);padding:14px 38px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;border:1.5px solid var(--border2);transition:border-color .2s,color .2s,transform .15s;display:inline-block;}
+.btn-outline:hover{border-color:var(--red);color:var(--red);transform:translateY(-2px);}
+
+/* STATS */
+.stats-strip{border-top:1px solid var(--border);border-bottom:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);background:#fff;}
+.stat{padding:36px 40px;border-right:1px solid var(--border);}
+.stat:last-child{border-right:none;}
+.stat-label{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:8px;font-weight:600;}
+.stat-value{font-size:40px;font-weight:800;line-height:1;letter-spacing:-.04em;color:var(--text);}
+.stat-value .accent{color:var(--red);}
+.stat-sub{font-size:12px;color:var(--muted);margin-top:5px;}
+
+/* SECTIONS */
+.section{padding:96px 60px;}
+.sec-white{background:#fff;}
+.sec-gray{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.section-head{margin-bottom:56px;}
+.section-tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:10px;}
+.section-tag::before{content:'';display:inline-block;width:18px;height:2px;background:var(--red);border-radius:2px;}
+.section-title{font-size:clamp(32px,4vw,54px);font-weight:800;letter-spacing:-.04em;line-height:1.08;color:var(--text);margin-bottom:14px;}
+.section-desc{color:var(--muted);font-size:16px;max-width:520px;line-height:1.7;}
+
+/* FEATURES */
+.features-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.feature-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:36px 28px;transition:box-shadow .25s,transform .25s,border-color .25s;position:relative;overflow:hidden;}
+.feature-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-5px);border-color:var(--red-border);}
+.feat-icon{width:50px;height:50px;border-radius:10px;background:var(--red-bg);border:1px solid var(--red-border);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;}
+.feat-badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--red);background:var(--red-bg);padding:3px 10px;border-radius:40px;margin-bottom:12px;border:1px solid var(--red-border);}
+.feat-title{font-size:17px;font-weight:700;margin-bottom:8px;}
+.feat-desc{font-size:13px;color:var(--muted);line-height:1.65;}
+
+/* INVENTORY */
+.inventory-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.car-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:box-shadow .3s,transform .3s,border-color .3s;display:flex;flex-direction:column;}
+.car-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-6px);border-color:var(--red-border);}
+.car-img-wrap{position:relative;height:220px;overflow:hidden;background:var(--light);}
+.car-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease;}
+.car-card:hover .car-img-wrap img{transform:scale(1.05);}
+.car-badge{position:absolute;top:14px;left:14px;background:var(--red);color:#fff;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;}
+.car-body{padding:26px;flex:1;display:flex;flex-direction:column;}
+.car-name{font-size:20px;font-weight:800;letter-spacing:-.02em;margin-bottom:4px;}
+.car-tagline{font-size:13px;color:var(--muted);margin-bottom:20px;}
+.car-specs{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border-radius:8px;overflow:hidden;margin-bottom:20px;border:1px solid var(--border);}
+.car-spec{padding:14px 8px;text-align:center;border-right:1px solid var(--border);}
+.car-spec:last-child{border-right:none;}
+.spec-num{font-size:21px;font-weight:800;letter-spacing:-.02em;color:var(--text);}
+.spec-unit{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:3px;}
+.car-price-row{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;}
+.car-price{font-size:24px;font-weight:800;color:var(--text);letter-spacing:-.03em;}
+.car-price-note{font-size:11px;color:var(--muted);}
+.car-savings{font-size:12px;color:var(--gain);font-weight:600;margin-bottom:22px;}
+.car-actions{display:flex;gap:10px;margin-top:auto;}
+.btn-order{flex:1;background:var(--red);color:#fff;border:none;border-radius:6px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;transition:background .2s,transform .15s;font-family:var(--font);}
+.btn-order:hover{background:var(--red-dark);transform:translateY(-1px);}
+.btn-learn{flex:1;background:transparent;color:var(--text);border:1.5px solid var(--border2);border-radius:6px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;transition:border-color .2s,color .2s,transform .15s;font-family:var(--font);}
+.btn-learn:hover{border-color:var(--red);color:var(--red);transform:translateY(-1px);}
+
+/* STOCKS */
+.stocks-layout{display:grid;grid-template-columns:1.7fr 1fr;gap:28px;}
+.stocks-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.05);}
+.stocks-card-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface);}
+.stocks-card-title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:10px;}
+.live-badge{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--gain-bg);color:var(--gain);padding:3px 9px;border-radius:40px;}
+.refresh-btn{font-size:12px;color:var(--red);cursor:pointer;font-weight:600;background:none;border:none;font-family:var(--font);transition:opacity .15s;}
+.refresh-btn:hover{opacity:.65;}
+.stock-thead{display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr;padding:10px 20px;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);background:var(--surface);font-weight:700;border-bottom:1px solid var(--border);}
+.stock-row{display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center;cursor:pointer;transition:background .15s;}
+.stock-row:last-child{border-bottom:none;}
+.stock-row:hover{background:#fff5f6;}
+.sinfo{display:flex;align-items:center;gap:10px;}
+.slogo{width:34px;height:34px;border-radius:8px;background:var(--light);border:1px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.slogo img{width:26px;height:26px;object-fit:contain;}
+.sticker{font-family:var(--mono);font-size:13px;font-weight:600;}
+.sname{font-size:11px;color:var(--muted);margin-top:1px;}
+.sprice{font-family:var(--mono);font-size:14px;font-weight:600;}
+.schg{font-family:var(--mono);font-size:12px;font-weight:600;padding:3px 9px;border-radius:4px;display:inline-block;}
+.schg.up{background:var(--gain-bg);color:var(--gain);}
+.schg.dn{background:var(--loss-bg);color:var(--loss);}
+.svol{font-family:var(--mono);font-size:11px;color:var(--muted);}
+.stock-loading{padding:40px 20px;text-align:center;color:var(--muted);font-size:13px;}
+.spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* TSLA highlight card */
+.tsla-card{background:linear-gradient(135deg,var(--red) 0%,var(--red-dark) 100%);color:#fff;padding:28px;border-radius:var(--radius);box-shadow:0 8px 32px rgba(227,25,55,.25);margin-bottom:28px;}
+.tsla-card-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;}
+.tsla-name{font-size:12px;font-weight:700;opacity:.75;text-transform:uppercase;letter-spacing:.1em;}
+.tsla-ticker{font-size:28px;font-weight:800;letter-spacing:-.02em;margin-top:3px;}
+.tsla-badge{font-size:10px;font-weight:700;background:rgba(255,255,255,.2);padding:4px 12px;border-radius:40px;}
+.tsla-price{font-size:46px;font-weight:800;letter-spacing:-.04em;font-family:var(--mono);line-height:1;margin-bottom:6px;}
+.tsla-chg{font-size:14px;font-weight:600;margin-bottom:22px;}
+.tsla-chg.up{color:#86efac;}
+.tsla-chg.dn{color:#fca5a5;}
+.tsla-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.tsla-stat{background:rgba(255,255,255,.15);border-radius:8px;padding:12px 14px;}
+.tsla-stat-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;opacity:.65;margin-bottom:4px;}
+.tsla-stat-val{font-family:var(--mono);font-size:15px;font-weight:700;}
+
+/* SIDEBAR */
+.stocks-sidebar{display:flex;flex-direction:column;gap:20px;}
+.side-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.side-header{padding:14px 20px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;background:var(--surface);}
+.side-item{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;}
+.side-item:last-child{border-bottom:none;}
+.side-item:hover{background:#fff5f6;}
+.side-sym{font-family:var(--mono);font-size:13px;font-weight:600;}
+.side-val{font-family:var(--mono);font-size:13px;font-weight:600;}
+.side-val.up{color:var(--gain);}
+.side-val.dn{color:var(--loss);}
+.portfolio-card{background:#fff;border:2px solid var(--red-border);border-radius:var(--radius);padding:24px;}
+.portfolio-card-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--red);margin-bottom:4px;}
+.portfolio-card-val{font-size:38px;font-weight:800;letter-spacing:-.04em;line-height:1;margin-bottom:4px;}
+.portfolio-card-chg{font-size:13px;font-weight:600;color:var(--gain);margin-bottom:20px;}
+
+/* NEWS */
+.news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.news-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:box-shadow .25s,transform .25s,border-color .25s;cursor:pointer;}
+.news-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-4px);border-color:var(--red-border);}
+.news-img{height:170px;overflow:hidden;background:var(--light);}
+.news-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s;}
+.news-card:hover .news-img img{transform:scale(1.05);}
+.news-body{padding:20px;}
+.news-meta{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.news-sym{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--red);background:var(--red-bg);padding:3px 10px;border-radius:4px;border:1px solid var(--red-border);}
+.news-src{font-size:11px;color:var(--muted);}
+.news-title{font-size:14px;font-weight:600;line-height:1.5;color:var(--text);margin-bottom:8px;}
+.news-snippet{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px;}
+.news-foot{display:flex;align-items:center;justify-content:space-between;}
+.news-sentiment{font-size:11px;font-weight:600;}
+.news-sentiment.pos{color:var(--gain);}
+.news-sentiment.neu{color:var(--muted);}
+.news-time{font-size:11px;color:var(--muted);}
+
+/* QUICK ACTIONS */
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.qa-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:32px 24px;text-decoration:none;color:var(--text);transition:box-shadow .25s,transform .25s,border-color .25s;display:flex;flex-direction:column;gap:10px;}
+.qa-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-4px);border-color:var(--red);}
+.qa-icon{width:50px;height:50px;border-radius:10px;background:var(--red-bg);border:1px solid var(--red-border);display:flex;align-items:center;justify-content:center;font-size:24px;}
+.qa-title{font-size:17px;font-weight:700;margin-top:4px;}
+.qa-desc{font-size:13px;color:var(--muted);line-height:1.55;}
+.qa-arrow{color:var(--red);font-size:20px;font-weight:700;margin-top:auto;}
+
+/* CTA */
+.cta-section{position:relative;overflow:hidden;background:var(--text);padding:110px 60px;text-align:center;}
+.cta-section::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--red);}
+.cta-section::after{content:'';position:absolute;top:-100px;right:-100px;width:350px;height:350px;border-radius:50%;background:radial-gradient(circle,rgba(227,25,55,.25) 0%,transparent 70%);}
+.cta-inner{position:relative;z-index:1;}
+.cta-tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--red);background:rgba(227,25,55,.12);padding:5px 16px;border-radius:40px;margin-bottom:18px;}
+.cta-section h2{font-size:clamp(36px,5vw,62px);font-weight:800;letter-spacing:-.04em;color:#fff;line-height:1.08;margin-bottom:16px;}
+.cta-section p{color:rgba(255,255,255,.55);font-size:17px;max-width:440px;margin:0 auto 44px;}
+.cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.btn-white{background:#fff;color:var(--text);padding:14px 40px;border-radius:6px;font-size:14px;font-weight:700;text-decoration:none;transition:opacity .2s,transform .15s;display:inline-block;}
+.btn-white:hover{opacity:.9;transform:translateY(-2px);}
+.btn-outline-white{background:transparent;color:#fff;padding:14px 40px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;border:1.5px solid rgba(255,255,255,.3);transition:border-color .2s,transform .15s;display:inline-block;}
+.btn-outline-white:hover{border-color:#fff;transform:translateY(-2px);}
+
+/* FOOTER */
+footer{background:#fff;border-top:1px solid var(--border);padding:60px 60px 36px;}
+.footer-red-bar{height:3px;background:var(--red);margin:-60px -60px 56px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px;}
+.footer-brand-name{font-size:20px;font-weight:800;letter-spacing:-.02em;color:var(--text);display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.footer-brand p{color:var(--muted);font-size:13px;max-width:260px;line-height:1.7;margin-bottom:10px;}
+.footer-disclaimer{font-size:11px;color:var(--muted);max-width:260px;line-height:1.6;}
+.footer-col h4{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--text);font-weight:700;margin-bottom:16px;}
+.footer-col a{display:block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:10px;transition:color .15s;}
+.footer-col a:hover{color:var(--red);}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:24px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);}
+
+/* ── HAMBURGER MENU ── */
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;background:none;border:none;margin-left:auto;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;transition:all .3s;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.mobile-menu{display:none;position:fixed;top:62px;left:0;right:0;background:#fff;border-bottom:2px solid var(--red);z-index:199;padding:16px 0;box-shadow:0 8px 32px rgba(0,0,0,.1);}
+.mobile-menu.open{display:block;}
+.mobile-menu a{display:block;padding:14px 24px;font-size:15px;font-weight:600;color:var(--text);text-decoration:none;border-bottom:1px solid var(--border);transition:color .15s,background .15s;}
+.mobile-menu a:hover{color:var(--red);background:var(--red-bg);}
+.mobile-menu a:last-child{border-bottom:none;}
+.mobile-menu-footer{display:flex;gap:12px;padding:16px 24px;}
+.mobile-menu-footer a{flex:1;text-align:center;padding:12px;border-radius:6px;font-size:14px;font-weight:700;text-decoration:none;}
+
+/* ── LARGE SCREENS (1400px+) ── */
+@media(min-width:1400px){
+  nav{padding:0 80px;}
+  .section{padding:112px 80px;}
+  .hero-content{padding:0 80px 100px;}
+  .stats-strip .stat{padding:40px 56px;}
+  .inventory-grid{grid-template-columns:repeat(3,1fr);}
+  footer{padding:72px 80px 40px;}
+  .footer-red-bar{margin:-72px -80px 64px;}
+}
+
+/* ── DESKTOP (1025px – 1399px) ── */
+@media(min-width:1025px) and (max-width:1399px){
+  .inventory-grid{grid-template-columns:repeat(3,1fr);}
+}
+
+/* ── TABLET / IPAD (768px – 1024px) ── */
+@media(max-width:1024px){
+  nav{padding:0 24px;gap:16px;}
+  .nav-links{display:none;}
+  .hamburger{display:flex;}
+  .section{padding:64px 32px;}
+  .features-grid{grid-template-columns:repeat(2,1fr);gap:16px;}
+  .inventory-grid{grid-template-columns:repeat(2,1fr);gap:20px;}
+  .stocks-layout{grid-template-columns:1fr;}
+  .news-grid{grid-template-columns:repeat(2,1fr);gap:20px;}
+  .qa-grid{grid-template-columns:repeat(2,1fr);gap:16px;}
+  .stats-strip{grid-template-columns:repeat(2,1fr);}
+  .stat{padding:28px 32px;}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:32px;}
+  .hero-content{padding:0 32px 72px;}
+  .hero h1{font-size:clamp(44px,7vw,72px);}
+  .cta-section{padding:80px 32px;}
+  footer{padding:48px 32px 28px;}
+  .footer-red-bar{margin:-48px -32px 48px;}
+  .tsla-card{padding:22px;}
+  .tsla-price{font-size:38px;}
+  .section-title{font-size:clamp(28px,4vw,44px);}
+}
+
+/* ── IPAD MINI / SMALL TABLET (600px – 767px) ── */
+@media(max-width:767px){
+  .section{padding:52px 20px;}
+  .features-grid{grid-template-columns:repeat(2,1fr);gap:14px;}
+  .inventory-grid{grid-template-columns:1fr;max-width:480px;margin:0 auto;}
+  .news-grid{grid-template-columns:1fr;max-width:480px;margin:0 auto;}
+  .qa-grid{grid-template-columns:repeat(2,1fr);gap:14px;}
+  .stats-strip{grid-template-columns:repeat(2,1fr);}
+  .stat{padding:24px 20px;}
+  .stat-value{font-size:32px;}
+  .stocks-layout{grid-template-columns:1fr;}
+  .stock-thead,.stock-row{grid-template-columns:2fr 1fr 1fr;}
+  .svol{display:none;}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:24px;}
+  .hero-content{padding:0 20px 60px;}
+  .cta-section{padding:64px 20px;}
+  footer{padding:40px 20px 24px;}
+  .footer-red-bar{margin:-40px -20px 40px;}
+  .tsla-stats{grid-template-columns:repeat(2,1fr);}
+}
+
+/* ── MOBILE (max 599px) ── */
+@media(max-width:599px){
+  nav{padding:0 16px;}
+  .section{padding:48px 16px;}
+  .features-grid{grid-template-columns:1fr;gap:12px;}
+  .inventory-grid{grid-template-columns:1fr;max-width:100%;}
+  .news-grid{grid-template-columns:1fr;}
+  .qa-grid{grid-template-columns:1fr;gap:12px;}
+  .stats-strip{grid-template-columns:1fr;}
+  .stat{padding:20px 16px;border-right:none;border-bottom:1px solid var(--border);}
+  .stat-value{font-size:36px;}
+  .hero h1{font-size:38px!important;letter-spacing:-.03em;}
+  .hero-sub{font-size:15px;}
+  .hero-btns{flex-direction:column;align-items:center;}
+  .hero-btns a{width:100%;max-width:280px;text-align:center;}
+  .hero-content{padding:0 16px 52px;}
+  .tsla-price{font-size:34px;}
+  .tsla-stats{grid-template-columns:1fr 1fr;}
+  .tsla-card{padding:20px;}
+  .section-title{font-size:28px;}
+  .section-desc{font-size:14px;}
+  .car-name{font-size:18px;}
+  .car-price{font-size:20px;}
+  .stock-thead,.stock-row{grid-template-columns:2fr 1fr 1fr;}
+  .svol{display:none;}
+  .footer-grid{grid-template-columns:1fr;gap:28px;}
+  .footer-bottom{flex-direction:column;gap:8px;text-align:center;}
+  .cta-section{padding:56px 16px;}
+  .cta-btns{flex-direction:column;align-items:center;}
+  .cta-btns a{width:100%;max-width:280px;text-align:center;}
+  footer{padding:36px 16px 24px;}
+  .footer-red-bar{margin:-36px -16px 36px;}
+  .stocks-sidebar{gap:14px;}
+  .tsla-stat-val{font-size:13px;}
+  .feat-title{font-size:15px;}
+  .feat-desc{font-size:12px;}
+  .qa-title{font-size:15px;}
+  .qa-desc{font-size:12px;}
+  .news-title{font-size:13px;}
+}
+</style>
+<script src="page-transition-loader.js"></script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo"><span class="nav-t">T</span> TeslasCap</a>
+  <ul class="nav-links">
+    <li><a href="#inventory">Inventory</a></li>
+    <li><a href="#invest">Invest</a></li>
+    <li><a href="#stocks">Stocks</a></li>
+    <li><a href="#portfolio">Portfolio</a></li>
+    <li><a href="#news">News</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="login.html" class="nav-sign">Sign In</a>
+    <a href="register.html" class="nav-btn">Get Started</a>
+  </div>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#inventory" onclick="closeMobileMenu()">Inventory</a>
+  <a href="#invest" onclick="closeMobileMenu()">Invest</a>
+  <a href="#stocks" onclick="closeMobileMenu()">Stocks</a>
+  <a href="#portfolio" onclick="closeMobileMenu()">Portfolio</a>
+  <a href="#news" onclick="closeMobileMenu()">News</a>
+  <div class="mobile-menu-footer">
+    <a href="login.html" style="border:1.5px solid var(--border2);color:var(--text);">Sign In</a>
+    <a href="register.html" style="background:var(--red);color:#fff;">Get Started</a>
+  </div>
+</div>
+<div style="height:62px;"></div>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-inner">
+    <div class="ticker-item"><span class="ticker-sym">TSLA</span><span id="tk1">$248.10</span><span class="ticker-up" id="tk1c">▲ +2.29%</span></div>
+    <div class="ticker-item"><span class="ticker-sym">AAPL</span>$229.35<span class="ticker-up">▲ +4.24%</span></div>
+    <div class="ticker-item"><span class="ticker-sym">NVDA</span>$924.77<span class="ticker-up">▲ +1.07%</span></div>
+    <div class="ticker-item"><span class="ticker-sym">MSFT</span>$522.04<span class="ticker-up">▲ +0.23%</span></div>
+    <div class="ticker-item"><span class="ticker-sym">GOOGL</span>$201.42<span class="ticker-up">▲ +2.49%</span></div>
+    <div class="ticker-item"><span class="ticker-sym">AMZN</span>$198.30<span class="ticker-dn">▼ −0.20%</span></div>
+    <div class="ticker-item"><span class="ticker-sym">NFLX</span>$642.80<span class="ticker-up">▲ +2.65%</span></div>
+    <div class="ticker-item"><span class="ticker-sym">BTC</span>$84,220<span class="ticker-up">▲ +1.3%</span></div>
+    <div class="ticker-item"><span class="ticker-sym">ETH</span>$1,924<span class="ticker-dn">▼ −0.5%</span></div>
+    <div class="ticker-item"><span class="ticker-sym">TSLA</span><span id="tk2">$248.10</span><span class="ticker-up" id="tk2c">▲ +2.29%</span></div>
+    <div class="ticker-item"><span class="ticker-sym">AAPL</span>$229.35<span class="ticker-up">▲ +4.24%</span></div>
+    <div class="ticker-item"><span class="ticker-sym">NVDA</span>$924.77<span class="ticker-up">▲ +1.07%</span></div>
+    <div class="ticker-item"><span class="ticker-sym">MSFT</span>$522.04<span class="ticker-up">▲ +0.23%</span></div>
+    <div class="ticker-item"><span class="ticker-sym">GOOGL</span>$201.42<span class="ticker-up">▲ +2.49%</span></div>
+    <div class="ticker-item"><span class="ticker-sym">AMZN</span>$198.30<span class="ticker-dn">▼ −0.20%</span></div>
+    <div class="ticker-item"><span class="ticker-sym">NFLX</span>$642.80<span class="ticker-up">▲ +2.65%</span></div>
+    <div class="ticker-item"><span class="ticker-sym">BTC</span>$84,220<span class="ticker-up">▲ +1.3%</span></div>
+    <div class="ticker-item"><span class="ticker-sym">ETH</span>$1,924<span class="ticker-dn">▼ −0.5%</span></div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-tag"><span class="live-dot"></span> Live Markets · Real-Time Data</div>
+    <h1>Invest. Trade.<br/><span class="red">Drive.</span></h1>
+    <p class="hero-sub">The all-in-one platform for Tesla investing, real-time stocks, crypto wallet, and premium EV inventory.</p>
+    <div class="hero-btns">
+      <a href="register.html" class="btn-red">Get Started</a>
+      <a href="register.html" class="btn-outline">View Live Stocks</a>
+      <a href="register.html" class="btn-outline">Explore Inventory</a>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stat"><div class="stat-label">Assets Under Management</div><div class="stat-value">$2.<span class="accent">4B</span></div><div class="stat-sub">Across all portfolios</div></div>
+  <div class="stat"><div class="stat-label">Active Investors</div><div class="stat-value">48<span class="accent">K+</span></div><div class="stat-sub">Worldwide users</div></div>
+  <div class="stat"><div class="stat-label">EV Units Available</div><div class="stat-value">1,<span class="accent">200</span></div><div class="stat-sub">Ready for delivery</div></div>
+  <div class="stat"><div class="stat-label">Avg. Annual Return</div><div class="stat-value">18.<span class="accent">4%</span></div><div class="stat-sub">Since inception</div></div>
+</div>
+
+<!-- FEATURES -->
+<section class="section sec-gray" id="invest">
+  <div class="section-head">
+    <div class="section-tag">Platform Overview</div>
+    <h2 class="section-title">Everything in one place</h2>
+    <p class="section-desc">Automated investments, live Tesla stocks, crypto wallet, and premium EV inventory — all under one roof.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card" onclick="window.location.href='register.html'" style="cursor:pointer;"><div class="feat-icon"><span class="icon"><i data-lucide="trending-up" style="color:var(--red)"></i></span></div><div class="feat-badge">Automated</div><div class="feat-title">Investment Plans</div><div class="feat-desc">Flexible recurring contributions with smart rebalancing, tax-loss harvesting, and real-time performance analytics.</div></div>
+   <div class="feature-card" onclick="window.location.href='register.html'" style="cursor:pointer;"><div class="feat-icon"><span class="icon"><i data-lucide="zap" style="color:var(--red)"></i></span></div><div class="feat-badge">Real-Time</div><div class="feat-title">Live Stocks</div><div class="feat-desc">Real-time Tesla and tech quotes, earnings alerts, AI-powered insights, and personalized watchlists.</div></div>
+    <div class="feature-card" onclick="window.location.href='register.html'" style="cursor:pointer;">><div class="feat-icon"><span class="icon"><i data-lucide="bitcoin" style="color:var(--red)"></i></span></div><div class="feat-badge">Crypto</div><div class="feat-title">Crypto Wallet</div><div class="feat-desc">Deposit, withdraw, and swap across 50+ cryptocurrencies. Fund your Tesla purchase directly with crypto.</div></div>
+   <div class="feature-card" onclick="window.location.href='register.html'" style="cursor:pointer;"><div class="feat-icon"><span class="icon"><i data-lucide="car" style="color:var(--red)"></i></span></div><div class="feat-badge">Premium</div><div class="feat-title">EV Marketplace</div><div class="feat-desc">Certified Tesla inventory curated for immediate delivery. Finance, order, and track — all in one platform.</div></div>
+  </div>
+</section>
+
+<!-- INVENTORY -->
+<section class="section sec-white" id="inventory">
+  <div class="section-head">
+    <div class="section-tag">Available Inventory</div>
+    <h2 class="section-title">Explore the Tesla fleet</h2>
+    <p class="section-desc">Certified, curated EVs ready for immediate delivery. Finance directly through your TeslasCap wallet.</p>
+  </div>
+  <div class="inventory-grid">
+
+    <div class="car-card">
+      <div class="car-img-wrap"><img src="https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=800&h=500&fit=crop" alt="Model 3"/><div class="car-badge">In Stock</div></div>
+      <div class="car-body">
+        <div class="car-name">Model 3 Long Range</div>
+        <div class="car-tagline">The bestselling electric sedan, refined.</div>
+        <div class="car-specs"><div class="car-spec"><div class="spec-num">358</div><div class="spec-unit">mi Range</div></div><div class="car-spec"><div class="spec-num">3.1s</div><div class="spec-unit">0–60 mph</div></div><div class="car-spec"><div class="spec-num">145</div><div class="spec-unit">Top mph</div></div></div>
+        <div class="car-price-row"><div class="car-price">$47,240</div><div class="car-price-note">starting price</div></div>
+        <div class="car-savings"><i data-lucide="check-circle" style="width:13px;height:13px;display:inline;vertical-align:middle;margin-right:4px;color:var(--gain)"></i> Est. $8,200/yr fuel savings</div>
+        <div class="car-actions"><button class="btn-order" onclick="window.location.href='register.html'">Order Now</button><button class="btn-learn" onclick="window.location.href='register.html'">Learn More</button></div>
+      </div>
+    </div>
+
+    <div class="car-card">
+      <div class="car-img-wrap"><img src="https://images.unsplash.com/photo-1617788138017-80ad40651399?w=800&h=500&fit=crop" alt="Model Y"/><div class="car-badge" style="background:#171a20;">Best Seller</div></div>
+      <div class="car-body">
+        <div class="car-name">Model Y Performance</div>
+        <div class="car-tagline">The world's most popular electric SUV.</div>
+        <div class="car-specs"><div class="car-spec"><div class="spec-num">303</div><div class="spec-unit">mi Range</div></div><div class="car-spec"><div class="spec-num">3.5s</div><div class="spec-unit">0–60 mph</div></div><div class="car-spec"><div class="spec-num">155</div><div class="spec-unit">Top mph</div></div></div>
+        <div class="car-price-row"><div class="car-price">$52,490</div><div class="car-price-note">starting price</div></div>
+        <div class="car-savings"><i data-lucide="check-circle" style="width:13px;height:13px;display:inline;vertical-align:middle;margin-right:4px;color:var(--gain)"></i> Est. $7,600/yr fuel savings</div>
+        <div class="car-actions"><button class="btn-order" onclick="window.location.href='register.html'">Order Now</button><button class="btn-learn" onclick="window.location.href='register.html'">Learn More</button></div>
+      </div>
+    </div>
+
+    <div class="car-card">
+      <div class="car-img-wrap"><img src="https://images.unsplash.com/photo-1617704548623-340376564e68?w=800&h=500&fit=crop" alt="Model X"/><div class="car-badge">Limited</div></div>
+      <div class="car-body">
+        <div class="car-name">Model X Plaid</div>
+        <div class="car-tagline">Ludicrous performance meets ultimate utility.</div>
+        <div class="car-specs"><div class="car-spec"><div class="spec-num">333</div><div class="spec-unit">mi Range</div></div><div class="car-spec"><div class="spec-num">2.5s</div><div class="spec-unit">0–60 mph</div></div><div class="car-spec"><div class="spec-num">163</div><div class="spec-unit">Top mph</div></div></div>
+        <div class="car-price-row"><div class="car-price">$94,990</div><div class="car-price-note">starting price</div></div>
+        <div class="car-savings"><i data-lucide="check-circle" style="width:13px;height:13px;display:inline;vertical-align:middle;margin-right:4px;color:var(--gain)"></i> Est. $9,100/yr fuel savings</div>
+        <div class="car-actions"><button class="btn-order" onclick="window.location.href='register.html'">Order Now</button><button class="btn-learn" onclick="window.location.href='register.html'">Learn More</button></div>
+      </div>
+    </div>
+
+    <div class="car-card">
+      <div class="car-img-wrap"><img src="https://images.unsplash.com/photo-1617788138017-80ad40651399?w=800&h=500&fit=crop" alt="Model S"/><div class="car-badge">New Arrival</div></div>
+      <div class="car-body">
+        <div class="car-name">Model S Plaid</div>
+        <div class="car-tagline">Beyond ludicrous. The pinnacle of performance.</div>
+        <div class="car-specs"><div class="car-spec"><div class="spec-num">396</div><div class="spec-unit">mi Range</div></div><div class="car-spec"><div class="spec-num">1.99s</div><div class="spec-unit">0–60 mph</div></div><div class="car-spec"><div class="spec-num">200</div><div class="spec-unit">Top mph</div></div></div>
+        <div class="car-price-row"><div class="car-price">$89,990</div><div class="car-price-note">starting price</div></div>
+        <div class="car-savings"><i data-lucide="check-circle" style="width:13px;height:13px;display:inline;vertical-align:middle;margin-right:4px;color:var(--gain)"></i> Est. $9,400/yr fuel savings</div>
+        <div class="car-actions"><button class="btn-order" onclick="window.location.href='register.html'">Order Now</button><button class="btn-learn" onclick="window.location.href='register.html'">Learn More</button></div>
+      </div>
+    </div>
+
+    <div class="car-card">
+      <div class="car-img-wrap"><img src="https://images.unsplash.com/photo-1644361566696-3d442b5b482a?w=800&h=500&fit=crop" alt="Cybertruck"/><div class="car-badge" style="background:#171a20;">Available Now</div></div>
+      <div class="car-body">
+        <div class="car-name">Cybertruck AWD</div>
+        <div class="car-tagline">Designed for the future. Built for today.</div>
+        <div class="car-specs"><div class="car-spec"><div class="spec-num">340</div><div class="spec-unit">mi Range</div></div><div class="car-spec"><div class="spec-num">4.1s</div><div class="spec-unit">0–60 mph</div></div><div class="car-spec"><div class="spec-num">112</div><div class="spec-unit">Top mph</div></div></div>
+        <div class="car-price-row"><div class="car-price">$79,990</div><div class="car-price-note">starting price</div></div>
+        <div class="car-savings"><i data-lucide="check-circle" style="width:13px;height:13px;display:inline;vertical-align:middle;margin-right:4px;color:var(--gain)"></i> Est. $8,800/yr fuel savings</div>
+        <div class="car-actions"><button class="btn-order" onclick="window.location.href='register.html'">Order Now</button><button class="btn-learn" onclick="window.location.href='register.html'">Learn More</button></div>
+      </div>
+    </div>
+
+    <div class="car-card">
+      <div class="car-img-wrap"><img src="https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=800&h=500&fit=crop" alt="Model 3 RWD"/><div class="car-badge" style="background:#1a7f4b;">Best Value</div></div>
+      <div class="car-body">
+        <div class="car-name">Model 3 Standard RWD</div>
+        <div class="car-tagline">The most accessible Tesla ever made.</div>
+        <div class="car-specs"><div class="car-spec"><div class="spec-num">272</div><div class="spec-unit">mi Range</div></div><div class="car-spec"><div class="spec-num">5.8s</div><div class="spec-unit">0–60 mph</div></div><div class="car-spec"><div class="spec-num">140</div><div class="spec-unit">Top mph</div></div></div>
+        <div class="car-price-row"><div class="car-price">$38,990</div><div class="car-price-note">starting price</div></div>
+        <div class="car-savings"><i data-lucide="check-circle" style="width:13px;height:13px;display:inline;vertical-align:middle;margin-right:4px;color:var(--gain)"></i> Est. $7,000/yr fuel savings</div>
+        <div class="car-actions"><button class="btn-order" onclick="window.location.href='register.html'">Order Now</button><button class="btn-learn" onclick="window.location.href='register.html'">Learn More</button></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- STOCKS -->
+<section class="section sec-gray" id="stocks">
+  <div class="section-head">
+    <div class="section-tag">Live Stock Markets</div>
+    <h2 class="section-title">Real-time Tesla &amp; tech stocks</h2>
+    <p class="section-desc">AI-powered market insights and live quotes — updated automatically every few seconds.</p>
+  </div>
+  <div class="tsla-card">
+    <div class="tsla-card-head"><div><div class="tsla-name">Tesla, Inc.</div><div class="tsla-ticker">TSLA</div></div><span class="tsla-badge">NASDAQ</span></div>
+    <div class="tsla-price" id="tslaPrice">$248.10</div>
+    <div class="tsla-chg up" id="tslaChg">▲ +$5.57 (+2.29%)</div>
+    <div class="tsla-stats">
+      <div class="tsla-stat"><div class="tsla-stat-label">Market Cap</div><div class="tsla-stat-val">$795.3B</div></div>
+      <div class="tsla-stat"><div class="tsla-stat-label">Volume</div><div class="tsla-stat-val">57.2M</div></div>
+      <div class="tsla-stat"><div class="tsla-stat-label">52W High</div><div class="tsla-stat-val">$488.54</div></div>
+      <div class="tsla-stat"><div class="tsla-stat-label">52W Low</div><div class="tsla-stat-val">$138.80</div></div>
+    </div>
+  </div>
+  <div class="stocks-layout">
+    <div>
+      <div class="stocks-card">
+        <div class="stocks-card-header">
+          <div class="stocks-card-title">Featured Stocks <span class="live-badge">● Live</span></div>
+          <button class="refresh-btn" onclick="renderStocks()">↻ Refresh</button>
+        </div>
+        <div id="stocksBody"><div class="stock-loading"><div class="spinner"></div>Loading live market data…</div></div>
+      </div>
+    </div>
+    <div class="stocks-sidebar">
+      <div class="side-card">
+        <div class="side-header"><span class="icon"><i data-lucide="flame" style="color:var(--red)"></i></span> Top Gainers</div>
+        <div class="side-item"><span class="side-sym">AAPL</span><span class="side-val up">+4.24%</span></div>
+        <div class="side-item"><span class="side-sym">NFLX</span><span class="side-val up">+2.65%</span></div>
+        <div class="side-item"><span class="side-sym">GOOGL</span><span class="side-val up">+2.49%</span></div>
+        <div class="side-item"><span class="side-sym">TSLA</span><span class="side-val up">+2.29%</span></div>
+      </div>
+      <div class="side-card">
+        <div class="side-header"><span class="icon"><i data-lucide="bar-chart-2" style="color:var(--red)"></i></span> Most Active</div>
+        <div class="side-item"><span class="side-sym">NVDA</span><span class="side-val" style="color:var(--muted)">130.1M</span></div>
+        <div class="side-item"><span class="side-sym">AAPL</span><span class="side-val" style="color:var(--muted)">74.9M</span></div>
+        <div class="side-item"><span class="side-sym">TSLA</span><span class="side-val" style="color:var(--muted)">57.2M</span></div>
+        <div class="side-item"><span class="side-sym">AMZN</span><span class="side-val" style="color:var(--muted)">32.1M</span></div>
+      </div>
+      <div class="portfolio-card">
+        <div class="portfolio-card-label">Your Portfolio</div>
+        <div class="portfolio-card-val">$12,430</div>
+        <div class="portfolio-card-chg">▲ +$342.10 today (+2.83%)</div>
+        <a href="register.html" class="btn-red" style="display:block;text-align:center;font-size:13px;padding:11px;text-decoration:none;">View Portfolio</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEWS -->
+<section class="section sec-white" id="news">
+  <div class="section-head">
+    <div class="section-tag">Market News</div>
+    <h2 class="section-title">Latest headlines</h2>
+    <p class="section-desc">AI-curated breaking news and market sentiment impacting your watchlist — powered by Claude.</p>
+  </div>
+  <div class="news-grid" id="newsGrid">
+    <div class="news-card"><div class="news-img"><img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&h=300&fit=crop" alt=""/></div><div class="news-body"><div class="news-meta"><span class="news-sym">TSLA</span><span class="news-src">Reuters · 2h ago</span></div><div class="news-title">Tesla Q1 delivery numbers signal strong demand recovery in key markets</div><div class="news-snippet">Analysts upgrade price targets after Tesla reports better-than-expected delivery figures.</div><div class="news-foot"><span class="news-sentiment pos">↑ Very Positive</span><span class="news-time">2h ago</span></div></div></div>
+    <div class="news-card"><div class="news-img"><img src="https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&h=300&fit=crop" alt=""/></div><div class="news-body"><div class="news-meta"><span class="news-sym">NVDA</span><span class="news-src">Bloomberg · 4h ago</span></div><div class="news-title">NVIDIA data center revenue smashes records for fifth consecutive quarter</div><div class="news-snippet">AI chip demand continues to surge as hyperscalers accelerate infrastructure spending.</div><div class="news-foot"><span class="news-sentiment pos">↑ Very Positive</span><span class="news-time">4h ago</span></div></div></div>
+    <div class="news-card"><div class="news-img"><img src="https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=600&h=300&fit=crop" alt=""/></div><div class="news-body"><div class="news-meta"><span class="news-sym">AAPL</span><span class="news-src">CNBC · 6h ago</span></div><div class="news-title">Apple beats Wall Street estimates — investors eye AI-powered product cycle</div><div class="news-snippet">Services revenue hits all-time high with Apple Intelligence driving upgrade cycle momentum.</div><div class="news-foot"><span class="news-sentiment pos">↑ Positive</span><span class="news-time">6h ago</span></div></div></div>
+  </div>
+</section>
+
+<!-- QUICK ACTIONS -->
+<section class="section sec-gray" id="portfolio">
+  <div class="section-head">
+    <div class="section-tag">Quick Actions</div>
+    <h2 class="section-title">Jump right in</h2>
+    <p class="section-desc">Everything you need to manage investments, orders, and your portfolio in one click.</p>
+  </div>
+  <div class="qa-grid">
+    <a href="register.html" class="qa-card"><div class="qa-icon"><span class="icon"><i data-lucide="wallet" style="color:var(--red)"></i></span></div><div class="qa-title">Wallet</div><div class="qa-desc">Fund or withdraw instantly via crypto or bank transfer</div><div class="qa-arrow">→</div></a>
+    <a href="register.html" class="qa-card"><div class="qa-icon"><span class="icon"><i data-lucide="pie-chart" style="color:var(--red)"></i></span></div><div class="qa-title">Investments</div><div class="qa-desc">Create a recurring plan with smart auto-rebalancing</div><div class="qa-arrow">→</div></a>
+    <a href="register.html" class="qa-card"><div class="qa-icon"><span class="icon"><i data-lucide="newspaper" style="color:var(--red)"></i></span></div><div class="qa-title">Market Overview</div><div class="qa-desc">Live quotes, watchlists, earnings calendar and alerts</div><div class="qa-arrow">→</div></a>
+    <a href="register.html" class="qa-card"><div class="qa-icon"><span class="icon"><i data-lucide="line-chart" style="color:var(--red)"></i></span></div><div class="qa-title">Track Portfolio</div><div class="qa-desc">Performance analytics, returns, and allocation breakdown</div><div class="qa-arrow">→</div></a>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-tag">Get Started Today</div>
+    <h2>Ready to build your portfolio?</h2>
+    <p>Invest in Tesla, trade stocks, and order your dream EV — all in one professional platform.</p>
+    <div class="cta-btns">
+      <a href="register.html" class="btn-white">Create Free Account</a>
+      <a href="login.html" class="btn-outline-white">Sign In</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-red-bar"></div>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-brand-name"><span class="nav-t">T</span> TeslasCap</div>
+      <p>All-in-one platform for automated investments, live Tesla stocks, crypto wallet, and premium EV inventory.</p>
+      <p class="footer-disclaimer"><i data-lucide="alert-triangle" style="width:12px;height:12px;display:inline;vertical-align:middle;margin-right:4px;color:var(--muted)"></i> Not financial advice. All investments carry risk. Past performance does not guarantee future results.</p>
+    </div>
+    <div class="footer-col"><h4>Company</h4><a href="about.html">About</a><a href="careers.html">Careers</a><a href="press.html">Press</a><a href="contact.html">Contact</a></div>
+    <div class="footer-col"><h4>Support</h4><a href="help-center.html">Help Center</a><a href="terms.html">Terms of Service</a><a href="api-docs.html">API Docs</a><a href="status.html">Status</a></div>
+    <div class="footer-col"><h4>Legal</h4><a href="privacy.html">Privacy Policy</a><a href="disclosures.html">Disclosures</a><a href="cookies.html">Cookie Policy</a><a href="compliance.html">Compliance</a></div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 TeslasCap. All rights reserved.</span>
+  </div>
+</footer>
+
+<script>
+const STOCKS=[
+  {ticker:'TSLA',name:'Tesla Inc.',      price:248.10,chg:5.57,  pct:2.29, vol:'57.2M',logo:'https://static2.finnhub.io/file/publicdatany/finnhubimage/stock_logo/TSLA.png'},
+  {ticker:'AAPL',name:'Apple Inc.',      price:229.35,chg:9.32,  pct:4.24, vol:'74.9M',logo:'https://static2.finnhub.io/file/publicdatany/finnhubimage/stock_logo/AAPL.png'},
+  {ticker:'NVDA',name:'NVIDIA Corp.',    price:924.77,chg:9.77,  pct:1.07, vol:'130.1M',logo:'https://static2.finnhub.io/file/publicdatany/finnhubimage/stock_logo/NVDA.png'},
+  {ticker:'MSFT',name:'Microsoft Corp.',price:522.04,chg:1.20,  pct:0.23, vol:'18.4M',logo:'https://static2.finnhub.io/file/publicdatany/finnhubimage/stock_logo/MSFT.png'},
+  {ticker:'GOOGL',name:'Alphabet Inc.', price:201.42,chg:4.90,  pct:2.49, vol:'20.7M',logo:'https://static2.finnhub.io/file/publicdatany/finnhubimage/stock_logo/GOOG.png'},
+  {ticker:'AMZN',name:'Amazon.com',     price:198.30,chg:-0.40, pct:-0.20,vol:'32.1M',logo:'https://static2.finnhub.io/file/publicdatany/finnhubimage/stock_logo/AMZN.png'},
+  {ticker:'NFLX',name:'Netflix Inc.',   price:642.80,chg:16.59, pct:2.65, vol:'8.3M', logo:'https://static2.finnhub.io/file/publicdatany/finnhubimage/stock_logo/NFLX.png'},
+];
+let stocks=STOCKS.map(s=>({...s}));
+const fmt=n=>n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const jitter=v=>+(v*(1+(Math.random()-.5)*0.0025)).toFixed(2);
+
+function renderStocks(){
+  document.getElementById('stocksBody').innerHTML=`
+    <div class="stock-thead"><div>Symbol</div><div>Price</div><div>Change</div><div>Volume</div></div>
+    ${stocks.map(s=>{const up=s.pct>=0;return`
+    <div class="stock-row">
+      <div class="sinfo"><div class="slogo"><img src="${s.logo}" onerror="this.parentNode.textContent='${s.ticker.slice(0,2)}'"/></div><div><div class="sticker">${s.ticker}</div><div class="sname">${s.name}</div></div></div>
+      <div class="sprice">$${fmt(s.price)}</div>
+      <div><span class="schg ${up?'up':'dn'}">${up?'+':''}${s.pct.toFixed(2)}%</span></div>
+      <div class="svol">${s.vol}</div>
+    </div>`;}).join('')}`;
+  const t=stocks.find(x=>x.ticker==='TSLA');
+  if(t){
+    const up=t.pct>=0;
+    document.getElementById('tslaPrice').textContent='$'+fmt(t.price);
+    const el=document.getElementById('tslaChg');
+    el.textContent=`${up?'▲':'▼'} ${up?'+':''}$${Math.abs(t.chg).toFixed(2)} (${up?'+':''}${t.pct.toFixed(2)}%)`;
+    el.className=`tsla-chg ${up?'up':'dn'}`;
+    ['tk1','tk2'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='$'+fmt(t.price);});
+    ['tk1c','tk2c'].forEach(id=>{const e=document.getElementById(id);if(e){e.textContent=`${up?'▲':'▼'} ${up?'+':''}${t.pct.toFixed(2)}%`;e.className=up?'ticker-up':'ticker-dn';}});
+  }
+}
+
+setInterval(()=>{
+  stocks=stocks.map(s=>{const np=jitter(s.price);const base=s.price-s.chg;const nc=+(np-base).toFixed(2);const npct=+((nc/base)*100).toFixed(2);return{...s,price:np,chg:nc,pct:npct};});
+  renderStocks();
+},4000);
+
+async function loadAINews(){
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:'You are a financial news analyst for TeslasCap. Generate 3 realistic market news stories (March 2026) about TSLA, NVDA, and AAPL. Return ONLY valid JSON array, no markdown:\n[{"ticker":"TSLA","source":"Reuters","time":"1h ago","title":"...","snippet":"...","sentiment":"Very Positive"},{"ticker":"NVDA","source":"Bloomberg","time":"3h ago","title":"...","snippet":"...","sentiment":"Positive"},{"ticker":"AAPL","source":"CNBC","time":"5h ago","title":"...","snippet":"...","sentiment":"Neutral"}]'}]})});
+    const data=await res.json();
+    const text=(data.content||[]).map(c=>c.text||'').join('').replace(/```json|```/g,'').trim();
+    const items=JSON.parse(text);
+    const imgs=['https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&h=300&fit=crop','https://images.unsplash.com/photo-1642543492481-44e81e3914a7?w=600&h=300&fit=crop','https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=600&h=300&fit=crop'];
+    const sc=s=>s.toLowerCase().includes('positive')?'pos':s.toLowerCase().includes('negative')?'dn':'neu';
+    const si=s=>s.toLowerCase().includes('positive')?'↑':s.toLowerCase().includes('negative')?'↓':'–';
+    document.getElementById('newsGrid').innerHTML=items.map((n,i)=>`<div class="news-card"><div class="news-img"><img src="${imgs[i%3]}" alt=""/></div><div class="news-body"><div class="news-meta"><span class="news-sym">${n.ticker}</span><span class="news-src">${n.source} · ${n.time}</span></div><div class="news-title">${n.title}</div><div class="news-snippet">${n.snippet}</div><div class="news-foot"><span class="news-sentiment ${sc(n.sentiment)}">${si(n.sentiment)} ${n.sentiment}</span><span class="news-time">${n.time}</span></div></div></div>`).join('');
+  }catch(e){}
+}
+
+renderStocks();
+loadAINews();
+lucide.createIcons();
+
+// Hamburger menu
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('open');
+  mobileMenu.classList.toggle('open');
+});
+function closeMobileMenu() {
+  hamburger.classList.remove('open');
+  mobileMenu.classList.remove('open');
+}
+// Close on outside click
+document.addEventListener('click', e => {
+  if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
+    closeMobileMenu();
+  }
+});
+</script>
+</body>
+</html>

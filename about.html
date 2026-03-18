@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>About — TeslasCap</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.383.0/lucide.min.js"></script>
+<style>
+:root {
+  --bg: #ffffff;
+  --surface: #f7f7f7;
+  --card: #ffffff;
+  --border: #e8e8e8;
+  --border2: #d4d4d4;
+  --red: #e31937;
+  --red-dark: #b81530;
+  --red-bg: #fff0f2;
+  --red-border: rgba(227,25,55,0.15);
+  --text: #171a20;
+  --text2: #3e4044;
+  --muted: #6b6d72;
+  --light: #f4f4f4;
+  --shadow: 0 4px 24px rgba(0,0,0,0.07);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.11);
+  --radius: 10px;
+  --font: 'Outfit', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:#f0f0f0;}::-webkit-scrollbar-thumb{background:#d0d0d0;border-radius:3px;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(255,255,255,0.95);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);height:62px;display:flex;align-items:center;padding:0 48px;gap:36px;}
+.nav-logo{font-size:19px;font-weight:800;letter-spacing:-0.02em;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.nav-t{background:var(--red);color:#fff;font-weight:900;font-size:14px;width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;}
+.nav-links{display:flex;gap:30px;list-style:none;flex:1;}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:13px;font-weight:500;transition:color .2s;}
+.nav-links a:hover{color:var(--red);}
+.nav-right{display:flex;gap:12px;margin-left:auto;align-items:center;}
+.nav-sign{font-size:13px;font-weight:500;color:var(--text2);text-decoration:none;transition:color .2s;}
+.nav-sign:hover{color:var(--red);}
+.nav-btn{background:var(--red);color:#fff;padding:9px 24px;border-radius:5px;font-size:13px;font-weight:700;text-decoration:none;transition:background .2s;}
+.nav-btn:hover{background:var(--red-dark);}
+
+/* PAGE HEADER */
+.page-header{padding:120px 60px 60px;background:var(--surface);border-bottom:1px solid var(--border);margin-top:62px;}
+.page-title{font-size:48px;font-weight:800;letter-spacing:-0.02em;color:var(--text);margin-bottom:16px;}
+.page-subtitle{font-size:18px;color:var(--muted);max-width:600px;line-height:1.7;}
+
+/* SECTIONS */
+.section{padding:80px 60px;}
+.sec-white{background:#fff;}
+.sec-gray{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.section-head{margin-bottom:48px;}
+.section-tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:10px;}
+.section-tag::before{content:'';display:inline-block;width:18px;height:2px;background:var(--red);border-radius:2px;}
+.section-title{font-size:36px;font-weight:800;letter-spacing:-0.02em;color:var(--text);margin-bottom:14px;}
+.section-desc{color:var(--muted);font-size:16px;max-width:600px;line-height:1.7;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin:48px 0;}
+.stat-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:32px;text-align:center;}
+.stat-value{font-size:36px;font-weight:800;color:var(--red);margin-bottom:8px;}
+.stat-label{font-size:13px;color:var(--muted);font-weight:600;}
+
+/* FEATURES GRID */
+.features-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.feature-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:32px;transition:box-shadow .25s;}
+.feature-card:hover{box-shadow:var(--shadow-lg);}
+.feat-icon{width:50px;height:50px;border-radius:10px;background:var(--red-bg);border:1px solid var(--red-border);display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:var(--red);}
+.feat-title{font-size:17px;font-weight:700;margin-bottom:8px;}
+.feat-desc{font-size:13px;color:var(--muted);line-height:1.6;}
+
+/* TEAM GRID */
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;}
+.team-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:box-shadow .25s;}
+.team-card:hover{box-shadow:var(--shadow-lg);}
+.team-img{height:240px;background:var(--light);display:flex;align-items:center;justify-content:center;font-size:64px;color:var(--red);}
+.team-body{padding:24px;}
+.team-name{font-size:18px;font-weight:700;margin-bottom:4px;}
+.team-role{font-size:13px;color:var(--red);font-weight:600;margin-bottom:12px;}
+.team-bio{font-size:13px;color:var(--muted);line-height:1.6;}
+
+/* VALUES GRID */
+.values-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.value-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:32px;}
+.value-icon{font-size:40px;margin-bottom:16px;}
+.value-title{font-size:18px;font-weight:700;margin-bottom:12px;}
+.value-desc{font-size:13px;color:var(--muted);line-height:1.6;}
+
+/* FOOTER */
+footer{background:#fff;border-top:1px solid var(--border);padding:60px 60px 36px;}
+.footer-red-bar{height:3px;background:var(--red);margin:-60px -60px 56px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px;}
+.footer-brand-name{font-size:20px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.nav-t{background:var(--red);color:#fff;font-weight:900;font-size:14px;width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;}
+.footer-brand p{color:var(--muted);font-size:13px;max-width:260px;line-height:1.7;margin-bottom:10px;}
+.footer-col h4{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--text);font-weight:700;margin-bottom:16px;}
+.footer-col a{display:block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:10px;transition:color .15s;}
+.footer-col a:hover{color:var(--red);}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:24px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);}
+
+@media(max-width:768px){
+  nav{padding:0 24px;}
+  .page-header{padding:100px 24px 40px;}
+  .section{padding:48px 24px;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .features-grid{grid-template-columns:repeat(2,1fr);}
+  .team-grid{grid-template-columns:1fr;}
+  .values-grid{grid-template-columns:1fr;}
+}
+</style>
+<script src="page-transition-loader.js"></script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo"><span class="nav-t">T</span>TeslasCap</a>
+  <ul class="nav-links">
+    <li><a href="index.html#invest">Invest</a></li>
+    <li><a href="index.html#stocks">Stocks</a></li>
+    <li><a href="index.html#inventory">Inventory</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="login.html" class="nav-sign">Sign In</a>
+    <a href="register.html" class="nav-btn">Get Started</a>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <h1 class="page-title">About TeslasCap</h1>
+  <p class="page-subtitle">Revolutionizing the way people invest, trade, and acquire premium electric vehicles through our innovative all-in-one platform.</p>
+</div>
+
+<!-- MISSION SECTION -->
+<section class="section sec-white">
+  <div class="section-head">
+    <div class="section-tag">Our Mission</div>
+    <h2 class="section-title">Building the Future of Finance</h2>
+  </div>
+  <p style="font-size:16px;color:var(--muted);max-width:700px;line-height:1.8;margin-bottom:32px;">We're building the future of financial services by combining cutting-edge technology with traditional investment principles. Our platform democratizes access to premium investment opportunities and luxury electric vehicles.</p>
+  <p style="font-size:16px;color:var(--muted);max-width:700px;line-height:1.8;">From automated investment strategies to real-time stock trading and curated Tesla inventory, we provide everything you need to grow your wealth and drive the future.</p>
+</section>
+
+<!-- STATS SECTION -->
+<section class="section sec-gray">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">10K+</div>
+      <div class="stat-label">Active Users</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">$50M+</div>
+      <div class="stat-label">Assets Under Management</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">1.2K</div>
+      <div class="stat-label">EV Units Delivered</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">18.4%</div>
+      <div class="stat-label">Avg. Annual Return</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES SECTION -->
+<section class="section sec-white">
+  <div class="section-head">
+    <div class="section-tag">Our Platform</div>
+    <h2 class="section-title">Everything You Need</h2>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feat-icon"><i data-lucide="trending-up"></i></div>
+      <div class="feat-title">Investments</div>
+      <div class="feat-desc">Automated smart portfolio management with tax-loss harvesting and real-time analytics.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon"><i data-lucide="zap"></i></div>
+      <div class="feat-title">Trading</div>
+      <div class="feat-desc">Real-time market data and execution for Tesla and tech stocks with AI-powered insights.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon"><i data-lucide="bitcoin"></i></div>
+      <div class="feat-title">Wallet</div>
+      <div class="feat-desc">Secure digital asset storage with support for 50+ cryptocurrencies and instant transfers.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon"><i data-lucide="car"></i></div>
+      <div class="feat-title">Marketplace</div>
+      <div class="feat-desc">Premium curated EV selection with financing options and immediate delivery.</div>
+    </div>
+  </div>
+</section>
+
+<!-- VALUES SECTION -->
+<section class="section sec-gray">
+  <div class="section-head">
+    <div class="section-tag">Our Values</div>
+    <h2 class="section-title">Principles That Guide Us</h2>
+  </div>
+  <div class="values-grid">
+    <div class="value-card">
+      <div class="value-icon"><i data-lucide="lock" style="width:32px;height:32px;color:var(--red);"></i></div>
+      <div class="value-title">Security First</div>
+      <div class="value-desc">Your assets and data are protected with enterprise-grade security measures and regulatory compliance.</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon"><i data-lucide="zap" style="width:32px;height:32px;color:var(--red);"></i></div>
+      <div class="value-title">Innovation</div>
+      <div class="value-desc">We continuously push boundaries to deliver cutting-edge financial technology and user experiences.</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon"><i data-lucide="users" style="width:32px;height:32px;color:var(--red);"></i></div>
+      <div class="value-title">User-Centric</div>
+      <div class="value-desc">Every feature and decision is made with our users' success and satisfaction in mind.</div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM SECTION -->
+<section class="section sec-white">
+  <div class="section-head">
+    <div class="section-tag">Leadership</div>
+    <h2 class="section-title">Meet Our Team</h2>
+  </div>
+  <div class="team-grid">
+    <div class="team-card">
+      <div class="team-img"><i data-lucide="user" style="width:48px;height:48px;color:var(--red);"></i></div>
+      <div class="team-body">
+        <div class="team-name">Alex Chen</div>
+        <div class="team-role">CEO & Founder</div>
+        <div class="team-bio">Visionary leader with 15+ years in fintech. Former executive at leading investment platforms.</div>
+      </div>
+    </div>
+    <div class="team-card">
+      <div class="team-img"><i data-lucide="code" style="width:48px;height:48px;color:var(--red);"></i></div>
+      <div class="team-body">
+        <div class="team-name">Marcus Rodriguez</div>
+        <div class="team-role">CTO</div>
+        <div class="team-bio">Technology expert specializing in blockchain and scalable systems for millions of users.</div>
+      </div>
+    </div>
+    <div class="team-card">
+      <div class="team-img"><i data-lucide="briefcase" style="width:48px;height:48px;color:var(--red);"></i></div>
+      <div class="team-body">
+        <div class="team-name">Sarah Williams</div>
+        <div class="team-role">Head of Investments</div>
+        <div class="team-bio">Portfolio management and strategy expert with 20+ years in institutional investment.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-red-bar"></div>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-brand-name"><span class="nav-t">T</span> TeslasCap</div>
+      <p>The all-in-one platform for Tesla investing, real-time stocks, crypto wallet, and premium EV inventory.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="about.html">About</a>
+      <a href="careers.html">Careers</a>
+      <a href="press.html">Press</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <a href="help-center.html">Help Center</a>
+      <a href="terms.html">Terms of Service</a>
+      <a href="api-docs.html">API Docs</a>
+      <a href="status.html">Status</a>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="disclosures.html">Disclosures</a>
+      <a href="cookies.html">Cookie Policy</a>
+      <a href="compliance.html">Compliance</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div>© 2026 TeslasCap. All rights reserved.</div>
+    <div>Invest. Trade. Drive.</div>
+  </div>
+</footer>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

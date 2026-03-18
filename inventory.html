@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory - TeslasCap</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --red: #e31937;
+            --red-dark: #c41e3a;
+            --text: #171a20;
+            --muted: #6b6d72;
+            --border: #e5e5e5;
+            --surface: #f5f5f5;
+            --light: #f4f4f4;
+            --gain: #1a7f4b;
+            --gain-bg: #eaf7f1;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--surface);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #fff;
+            padding: 24px;
+            border-right: 1px solid var(--border);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--red);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .user-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .user-info p {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #666;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: var(--light);
+            color: var(--red);
+        }
+
+        .nav-item.active {
+            background: #ffe5e9;
+            color: var(--red);
+            font-weight: 600;
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+            margin-top: auto;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #fff;
+            color: var(--red);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #ffe5e9;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 32px;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, #8b1428 0%, #c41e3a 100%);
+            color: white;
+            padding: 32px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+            box-shadow: 0 8px 24px rgba(227, 25, 55, 0.15);
+        }
+
+        .header-section h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .header-section p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        /* Inventory Grid */
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .car-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: box-shadow 0.3s, transform 0.3s, border-color 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .car-card:hover {
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.11);
+            transform: translateY(-6px);
+            border-color: rgba(227, 25, 55, 0.15);
+        }
+
+        .car-img-wrap {
+            position: relative;
+            height: 220px;
+            overflow: hidden;
+            background: var(--light);
+        }
+
+        .car-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .car-card:hover .car-img-wrap img {
+            transform: scale(1.05);
+        }
+
+        .car-badge {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            background: var(--red);
+            color: #fff;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 4px 12px;
+        }
+
+        .car-body {
+            padding: 26px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .car-name {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .car-tagline {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 20px;
+        }
+
+        .car-specs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            background: var(--surface);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .car-spec {
+            padding: 14px 8px;
+            text-align: center;
+            border-right: 1px solid var(--border);
+        }
+
+        .car-spec:last-child {
+            border-right: none;
+        }
+
+        .spec-num {
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text);
+        }
+
+        .spec-unit {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        .car-price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .car-price {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.03em;
+        }
+
+        .car-price-note {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .car-savings {
+            font-size: 12px;
+            color: var(--gain);
+            font-weight: 600;
+            margin-bottom: 22px;
+        }
+
+        .car-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .btn-order {
+            flex: 1;
+            background: var(--red);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-order:hover {
+            background: var(--red-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-learn {
+            flex: 1;
+            background: transparent;
+            color: var(--text);
+            border: 1.5px solid #d4d4d4;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s, transform 0.15s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-learn:hover {
+            border-color: var(--red);
+            color: var(--red);
+            transform: translateY(-1px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 200px;
+                padding: 16px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+                padding: 24px;
+            }
+
+            .inventory-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .header-section {
+                padding: 24px;
+            }
+
+            .header-section h1 {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding: 12px;
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                overflow-x: auto;
+            }
+
+            .sidebar-header {
+                flex-shrink: 0;
+                margin-bottom: 0;
+                padding-bottom: 0;
+                border-bottom: none;
+            }
+
+            .sidebar-nav {
+                display: flex;
+                gap: 4px;
+                flex: 1;
+                overflow-x: auto;
+                margin-bottom: 0;
+            }
+
+            .nav-item {
+                padding: 8px 10px;
+                font-size: 11px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            .sidebar-footer {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+
+            .inventory-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .header-section {
+                padding: 16px;
+                margin-bottom: 20px;
+            }
+
+            .header-section h1 {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                flex-wrap: wrap;
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .sidebar-header {
+                width: 100%;
+                padding-bottom: 10px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .user-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+
+            .user-info h4 {
+                font-size: 12px;
+            }
+
+            .user-info p {
+                font-size: 10px;
+            }
+
+            .sidebar-nav {
+                width: 100%;
+            }
+
+            .nav-item {
+                padding: 6px 8px;
+                font-size: 10px;
+            }
+
+            .main-content {
+                padding: 12px;
+            }
+
+            .header-section {
+                padding: 12px;
+                margin-bottom: 16px;
+            }
+
+            .header-section h1 {
+                font-size: 18px;
+            }
+
+            .header-section p {
+                font-size: 14px;
+            }
+
+            .inventory-grid {
+                gap: 12px;
+            }
+
+            .car-name {
+                font-size: 16px;
+            }
+
+            .car-price {
+                font-size: 20px;
+            }
+
+            .btn-order,
+            .btn-learn {
+                font-size: 12px;
+                padding: 10px;
+            }
+        }
+    </style>
+    <script src="page-transition-loader.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-avatar" id="userInitial">J</div>
+                <div class="user-info">
+                    <h4 id="userName">Loading...</h4>
+                    <p id="userEmail">user@example.com</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='3' y='3' width='7' height='7'/%3E%3Crect x='14' y='3' width='7' height='7'/%3E%3Crect x='14' y='14' width='7' height='7'/%3E%3Crect x='3' y='14' width='7' height='7'/%3E%3C/svg%3E#icon"/></svg>
+                    Dashboard
+                </a>
+                <a href="wallet.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='1' y='4' width='22' height='16' rx='2'/%3E%3Cpath d='M1 10h22'/%3E%3C/svg%3E#icon"/></svg>
+                    Wallet
+                </a>
+                <a href="investments.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M12 2v20M2 12h20'/%3E%3C/svg%3E#icon"/></svg>
+                    Investments
+                </a>
+                <a href="stocks.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='23 6 13.5 15.5 8.5 10.5 1 17'/%3E%3Cpolyline points='17 6 23 6 23 12'/%3E%3C/svg%3E#icon"/></svg>
+                    Stocks
+                </a>
+                <a href="portfolio.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='1'/%3E%3Cpath d='M12 1v6m0 6v6M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24'/%3E%3C/svg%3E#icon"/></svg>
+                    Portfolio
+                </a>
+                <a href="inventory.html" class="nav-item active">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M18 8h-1V6c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-5-2h4v2h-4V6zm5 12H6V10h12v10z'/%3E%3C/svg%3E#icon"/></svg>
+                    Inventory
+                </a>
+                <a href="orders.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M9 11l3 3L22 4'/%3E%3Cpath d='M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11'/%3E%3C/svg%3E#icon"/></svg>
+                    Orders
+                </a>
+                <a href="account.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E#icon"/></svg>
+                    Account
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logout()">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'/%3E%3Cpolyline points='16 17 21 12 16 7'/%3E%3Cline x1='21' y1='12' x2='9' y2='12'/%3E%3C/svg%3E#icon"/></svg>
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header-section">
+                <h1>Explore the Tesla Fleet</h1>
+                <p>Certified, curated EVs ready for immediate delivery. Finance directly through your TeslasCap wallet.</p>
+            </div>
+
+            <div class="inventory-grid">
+                <div class="car-card">
+                    <div class="car-img-wrap"><img src="https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=800&h=500&fit=crop" alt="Model 3"/><div class="car-badge">In Stock</div></div>
+                    <div class="car-body">
+                        <div class="car-name">Model 3 Long Range</div>
+                        <div class="car-tagline">The bestselling electric sedan, refined.</div>
+                        <div class="car-specs"><div class="car-spec"><div class="spec-num">358</div><div class="spec-unit">mi Range</div></div><div class="car-spec"><div class="spec-num">3.1s</div><div class="spec-unit">0–60 mph</div></div><div class="car-spec"><div class="spec-num">145</div><div class="spec-unit">Top mph</div></div></div>
+                        <div class="car-price-row"><div class="car-price">$47,240</div><div class="car-price-note">starting price</div></div>
+                        <div class="car-savings"><i data-lucide="check-circle" style="width:13px;height:13px;display:inline;vertical-align:middle;margin-right:4px;color:var(--gain)"></i> Est. $8,200/yr fuel savings</div>
+                        <div class="car-actions"><button class="btn-order" onclick="window.location.href='wallet.html?investmentAmount=47240&planName=Model%203%20Long%20Range'">Order Now</button><button class="btn-learn">Learn More</button></div>
+                    </div>
+                </div>
+
+                <div class="car-card">
+                    <div class="car-img-wrap"><img src="https://images.unsplash.com/photo-1617788138017-80ad40651399?w=800&h=500&fit=crop" alt="Model Y"/><div class="car-badge" style="background:#171a20;">Best Seller</div></div>
+                    <div class="car-body">
+                        <div class="car-name">Model Y Performance</div>
+                        <div class="car-tagline">The world's most popular electric SUV.</div>
+                        <div class="car-specs"><div class="car-spec"><div class="spec-num">303</div><div class="spec-unit">mi Range</div></div><div class="car-spec"><div class="spec-num">3.5s</div><div class="spec-unit">0–60 mph</div></div><div class="car-spec"><div class="spec-num">155</div><div class="spec-unit">Top mph</div></div></div>
+                        <div class="car-price-row"><div class="car-price">$52,490</div><div class="car-price-note">starting price</div></div>
+                        <div class="car-savings"><i data-lucide="check-circle" style="width:13px;height:13px;display:inline;vertical-align:middle;margin-right:4px;color:var(--gain)"></i> Est. $7,600/yr fuel savings</div>
+                        <div class="car-actions"><button class="btn-order" onclick="window.location.href='wallet.html?investmentAmount=52490&planName=Model%20Y%20Performance'">Order Now</button><button class="btn-learn">Learn More</button></div>
+                    </div>
+                </div>
+
+                <div class="car-card">
+                    <div class="car-img-wrap"><img src="https://images.unsplash.com/photo-1617704548623-340376564e68?w=800&h=500&fit=crop" alt="Model X"/><div class="car-badge">Limited</div></div>
+                    <div class="car-body">
+                        <div class="car-name">Model X Plaid</div>
+                        <div class="car-tagline">Ludicrous performance meets ultimate utility.</div>
+                        <div class="car-specs"><div class="car-spec"><div class="spec-num">333</div><div class="spec-unit">mi Range</div></div><div class="car-spec"><div class="spec-num">2.5s</div><div class="spec-unit">0–60 mph</div></div><div class="car-spec"><div class="spec-num">163</div><div class="spec-unit">Top mph</div></div></div>
+                        <div class="car-price-row"><div class="car-price">$94,990</div><div class="car-price-note">starting price</div></div>
+                        <div class="car-savings"><i data-lucide="check-circle" style="width:13px;height:13px;display:inline;vertical-align:middle;margin-right:4px;color:var(--gain)"></i> Est. $9,100/yr fuel savings</div>
+                        <div class="car-actions"><button class="btn-order" onclick="window.location.href='wallet.html?investmentAmount=94990&planName=Model%20X%20Plaid'">Order Now</button><button class="btn-learn">Learn More</button></div>
+                    </div>
+                </div>
+
+                <div class="car-card">
+                    <div class="car-img-wrap"><img src="https://images.unsplash.com/photo-1617788138017-80ad40651399?w=800&h=500&fit=crop" alt="Model S"/><div class="car-badge">New Arrival</div></div>
+                    <div class="car-body">
+                        <div class="car-name">Model S Plaid</div>
+                        <div class="car-tagline">Beyond ludicrous. The pinnacle of performance.</div>
+                        <div class="car-specs"><div class="car-spec"><div class="spec-num">396</div><div class="spec-unit">mi Range</div></div><div class="car-spec"><div class="spec-num">1.99s</div><div class="spec-unit">0–60 mph</div></div><div class="car-spec"><div class="spec-num">200</div><div class="spec-unit">Top mph</div></div></div>
+                        <div class="car-price-row"><div class="car-price">$89,990</div><div class="car-price-note">starting price</div></div>
+                        <div class="car-savings"><i data-lucide="check-circle" style="width:13px;height:13px;display:inline;vertical-align:middle;margin-right:4px;color:var(--gain)"></i> Est. $9,400/yr fuel savings</div>
+                        <div class="car-actions"><button class="btn-order" onclick="window.location.href='wallet.html?investmentAmount=89990&planName=Model%20S%20Plaid'">Order Now</button><button class="btn-learn">Learn More</button></div>
+                    </div>
+                </div>
+
+                <div class="car-card">
+                    <div class="car-img-wrap"><img src="https://images.unsplash.com/photo-1644361566696-3d442b5b482a?w=800&h=500&fit=crop" alt="Cybertruck"/><div class="car-badge" style="background:#171a20;">Available Now</div></div>
+                    <div class="car-body">
+                        <div class="car-name">Cybertruck AWD</div>
+                        <div class="car-tagline">Designed for the future. Built for today.</div>
+                        <div class="car-specs"><div class="car-spec"><div class="spec-num">340</div><div class="spec-unit">mi Range</div></div><div class="car-spec"><div class="spec-num">4.1s</div><div class="spec-unit">0–60 mph</div></div><div class="car-spec"><div class="spec-num">112</div><div class="spec-unit">Top mph</div></div></div>
+                        <div class="car-price-row"><div class="car-price">$79,990</div><div class="car-price-note">starting price</div></div>
+                        <div class="car-savings"><i data-lucide="check-circle" style="width:13px;height:13px;display:inline;vertical-align:middle;margin-right:4px;color:var(--gain)"></i> Est. $8,800/yr fuel savings</div>
+                        <div class="car-actions"><button class="btn-order" onclick="window.location.href='wallet.html?investmentAmount=79990&planName=Cybertruck%20AWD'">Order Now</button><button class="btn-learn">Learn More</button></div>
+                    </div>
+                </div>
+
+                <div class="car-card">
+                    <div class="car-img-wrap"><img src="https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=800&h=500&fit=crop" alt="Model 3 RWD"/><div class="car-badge" style="background:#1a7f4b;">Best Value</div></div>
+                    <div class="car-body">
+                        <div class="car-name">Model 3 Standard RWD</div>
+                        <div class="car-tagline">The most accessible Tesla ever made.</div>
+                        <div class="car-specs"><div class="car-spec"><div class="spec-num">272</div><div class="spec-unit">mi Range</div></div><div class="car-spec"><div class="spec-num">5.8s</div><div class="spec-unit">0–60 mph</div></div><div class="car-spec"><div class="spec-num">140</div><div class="spec-unit">Top mph</div></div></div>
+                        <div class="car-price-row"><div class="car-price">$38,990</div><div class="car-price-note">starting price</div></div>
+                        <div class="car-savings"><i data-lucide="check-circle" style="width:13px;height:13px;display:inline;vertical-align:middle;margin-right:4px;color:var(--gain)"></i> Est. $7,000/yr fuel savings</div>
+                        <div class="car-actions"><button class="btn-order" onclick="window.location.href='wallet.html?investmentAmount=38990&planName=Model%203%20Standard%20RWD'">Order Now</button><button class="btn-learn">Learn More</button></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
+    <script>
+        // Load user data
+        function loadUserData() {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            document.getElementById('userName').textContent = user.firstName || 'User';
+            document.getElementById('userEmail').textContent = user.email || 'user@example.com';
+            document.getElementById('userInitial').textContent = (user.firstName || 'U').charAt(0).toUpperCase();
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserData();
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

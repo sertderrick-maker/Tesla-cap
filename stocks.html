@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stocks - TeslasCap</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #f5f5f5;
+            color: #171a20;
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #fff;
+            padding: 24px;
+            border-right: 1px solid #e5e5e5;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #e31937;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .user-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .user-info p {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #666;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: #f5f5f5;
+            color: #e31937;
+        }
+
+        .nav-item.active {
+            background: #ffe5e9;
+            color: #e31937;
+            font-weight: 600;
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid #e5e5e5;
+            padding-top: 16px;
+            margin-top: auto;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #fff;
+            color: #e31937;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #ffe5e9;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 32px;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, #8b1428 0%, #c41e3a 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+            box-shadow: 0 8px 24px rgba(227, 25, 55, 0.15);
+        }
+
+        .header-section h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .header-section p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .search-bar {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .search-bar input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-bar svg {
+            width: 20px;
+            height: 20px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .content-section {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 32px;
+        }
+
+        .stock-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .stock-table thead {
+            border-bottom: 2px solid #e5e5e5;
+        }
+
+        .stock-table th {
+            text-align: left;
+            padding: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stock-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #f5f5f5;
+            font-size: 14px;
+        }
+
+        .stock-table tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        .stock-symbol {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stock-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #ffe5e9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #e31937;
+            font-size: 16px;
+        }
+
+        .stock-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .stock-info p {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .stock-price {
+            font-family: 'DM Mono', monospace;
+            font-weight: 600;
+        }
+
+        .stock-change {
+            font-family: 'DM Mono', monospace;
+            font-weight: 600;
+        }
+
+        .stock-change.positive {
+            color: #10b981;
+        }
+
+        .stock-change.negative {
+            color: #ef4444;
+        }
+
+        .stock-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            background: #e31937;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-small:hover {
+            background: #c41e3a;
+        }
+
+        .btn-small.secondary {
+            background: #f5f5f5;
+            color: #171a20;
+            border: 1px solid #e5e5e5;
+        }
+
+        .btn-small.secondary:hover {
+            background: #ffe5e9;
+            border-color: #e31937;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            width: 64px;
+            height: 64px;
+            background: #ffe5e9;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .empty-state-icon svg {
+            width: 32px;
+            height: 32px;
+            color: #e31937;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            color: #999;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+                padding: 24px;
+            }
+
+            .header-section {
+                padding: 24px;
+            }
+
+            .header-section h1 {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid #e5e5e5;
+                padding: 16px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+
+            .header-section {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .header-section h1 {
+                font-size: 20px;
+            }
+
+            .sidebar-nav {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                gap: 8px;
+            }
+
+            .nav-item {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            .stock-table {
+                font-size: 12px;
+            }
+
+            .stock-table td {
+                padding: 12px 8px;
+            }
+
+            .stock-actions {
+                flex-direction: column;
+            }
+
+            .btn-small {
+                padding: 4px 8px;
+                font-size: 11px;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content-section {
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Stock Details Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .stock-details-modal {
+            background: linear-gradient(135deg, #8b1428 0%, #c41e3a 100%);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideUp 0.3s ease;
+            color: white;
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-header-content h2 {
+            font-size: 24px;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .modal-header-content p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            opacity: 1;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .stock-detail-section {
+            margin-bottom: 24px;
+        }
+
+        .stock-detail-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .price-info {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 16px;
+        }
+
+        .price-item {
+            flex: 1;
+        }
+
+        .price-item-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .price-item-value {
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .positive {
+            color: #10b981;
+        }
+
+        .negative {
+            color: #ef4444;
+        }
+
+        .description-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.85);
+            background: rgba(0, 0, 0, 0.2);
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .yield-info {
+            background: rgba(76, 175, 80, 0.15);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .yield-info-title {
+            font-size: 12px;
+            color: rgba(76, 175, 80, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .yield-info-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .modal-footer {
+            padding: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .modal-btn-primary {
+            background: white;
+            color: #c41e3a;
+        }
+
+        .modal-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Enhanced Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+                padding: 24px;
+            }
+
+            .header-section h1 {
+                font-size: 24px;
+            }
+
+            .section-title {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid #e5e5e5;
+                padding: 12px;
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                overflow-x: auto;
+            }
+
+            .sidebar-header {
+                flex-shrink: 0;
+                margin-bottom: 0;
+                padding-bottom: 0;
+                border-bottom: none;
+            }
+
+            .user-info h4 {
+                font-size: 13px;
+            }
+
+            .user-info p {
+                font-size: 11px;
+            }
+
+            .sidebar-nav {
+                display: flex;
+                gap: 4px;
+                flex: 1;
+                overflow-x: auto;
+                margin-bottom: 0;
+                padding-bottom: 8px;
+            }
+
+            .nav-item {
+                padding: 8px 10px;
+                font-size: 11px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            .nav-item svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            .sidebar-footer {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+
+            .header-section {
+                padding: 16px;
+                margin-bottom: 20px;
+            }
+
+            .header-section h1 {
+                font-size: 20px;
+                margin-bottom: 4px;
+            }
+
+            .header-section p {
+                font-size: 14px;
+            }
+
+            .search-bar {
+                margin-top: 16px;
+                padding: 10px 12px;
+            }
+
+            .search-bar input {
+                font-size: 13px;
+            }
+
+            .section-title {
+                font-size: 16px;
+                margin-bottom: 16px;
+            }
+
+            .content-section {
+                padding: 16px;
+                margin-bottom: 20px;
+            }
+
+            .stock-table {
+                font-size: 12px;
+            }
+
+            .stock-table th {
+                padding: 10px 8px;
+                font-size: 11px;
+            }
+
+            .stock-table td {
+                padding: 12px 8px;
+                font-size: 12px;
+            }
+
+            .stock-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+
+            .stock-info h4 {
+                font-size: 13px;
+            }
+
+            .stock-info p {
+                font-size: 11px;
+            }
+
+            .stock-actions {
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .btn-small {
+                padding: 5px 8px;
+                font-size: 10px;
+            }
+
+            .stock-details-modal {
+                width: 95%;
+                max-width: 100%;
+                max-height: 85vh;
+            }
+
+            .modal-header {
+                padding: 16px;
+            }
+
+            .modal-header-content h2 {
+                font-size: 20px;
+            }
+
+            .modal-header-content p {
+                font-size: 13px;
+            }
+
+            .modal-body {
+                padding: 16px;
+            }
+
+            .modal-footer {
+                padding: 16px;
+                flex-direction: column;
+            }
+
+            .modal-btn {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                flex-wrap: wrap;
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .sidebar-header {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #e5e5e5;
+            }
+
+            .user-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+
+            .user-info h4 {
+                font-size: 12px;
+            }
+
+            .user-info p {
+                font-size: 10px;
+            }
+
+            .sidebar-nav {
+                width: 100%;
+                gap: 2px;
+                padding-bottom: 0;
+            }
+
+            .nav-item {
+                padding: 6px 8px;
+                font-size: 10px;
+                gap: 6px;
+            }
+
+            .nav-item svg {
+                width: 14px;
+                height: 14px;
+            }
+
+            .main-content {
+                padding: 12px;
+            }
+
+            .header-section {
+                padding: 12px;
+                margin-bottom: 16px;
+            }
+
+            .header-section h1 {
+                font-size: 18px;
+            }
+
+            .header-section p {
+                font-size: 12px;
+            }
+
+            .search-bar {
+                margin-top: 12px;
+                padding: 8px 10px;
+                gap: 8px;
+            }
+
+            .search-bar input {
+                font-size: 12px;
+            }
+
+            .search-bar svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            .section-title {
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+
+            .content-section {
+                padding: 12px;
+                margin-bottom: 16px;
+            }
+
+            .stock-table {
+                font-size: 11px;
+            }
+
+            .stock-table thead {
+                display: none;
+            }
+
+            .stock-table tbody tr {
+                display: block;
+                border: 1px solid #e5e5e5;
+                border-radius: 8px;
+                margin-bottom: 12px;
+                padding: 12px;
+            }
+
+            .stock-table td {
+                display: block;
+                padding: 8px 0;
+                border-bottom: none;
+                text-align: left;
+            }
+
+            .stock-table td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #999;
+                display: block;
+                font-size: 10px;
+                margin-bottom: 4px;
+            }
+
+            .stock-symbol {
+                gap: 10px;
+            }
+
+            .stock-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 12px;
+            }
+
+            .stock-info h4 {
+                font-size: 12px;
+            }
+
+            .stock-info p {
+                font-size: 10px;
+            }
+
+            .stock-actions {
+                flex-direction: row;
+                gap: 4px;
+                margin-top: 8px;
+            }
+
+            .btn-small {
+                padding: 4px 6px;
+                font-size: 9px;
+                flex: 1;
+            }
+
+            .empty-state {
+                padding: 40px 16px;
+            }
+
+            .empty-state-icon {
+                width: 48px;
+                height: 48px;
+            }
+
+            .empty-state-icon svg {
+                width: 24px;
+                height: 24px;
+            }
+
+            .empty-state h3 {
+                font-size: 16px;
+            }
+
+            .empty-state p {
+                font-size: 12px;
+            }
+
+            .stock-details-modal {
+                width: 98%;
+                max-height: 90vh;
+            }
+
+            .modal-header {
+                padding: 12px;
+                gap: 8px;
+            }
+
+            .modal-header-content h2 {
+                font-size: 18px;
+            }
+
+            .modal-header-content p {
+                font-size: 12px;
+            }
+
+            .modal-close {
+                font-size: 20px;
+            }
+
+            .modal-body {
+                padding: 12px;
+            }
+
+            .stock-details-content {
+                gap: 12px;
+            }
+
+            .detail-item {
+                padding: 12px;
+            }
+
+            .detail-item-label {
+                font-size: 11px;
+            }
+
+            .detail-item-value {
+                font-size: 16px;
+            }
+
+            .stock-description {
+                font-size: 12px;
+            }
+
+            .about-section {
+                padding: 12px;
+            }
+
+            .about-section h4 {
+                font-size: 13px;
+            }
+
+            .about-section p {
+                font-size: 12px;
+            }
+
+            .yield-info {
+                padding: 12px;
+            }
+
+            .yield-info-title {
+                font-size: 11px;
+            }
+
+            .yield-info-content {
+                font-size: 12px;
+            }
+
+            .modal-footer {
+                padding: 12px;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .modal-btn {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+        }
+    </style>
+    <script src="page-transition-loader.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-avatar" id="userInitial">J</div>
+<div class="user-info">
+    <h4 id="userName">Loading...</h4>
+    <p id="userEmail">user@example.com</p>
+</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='3' y='3' width='7' height='7'/%3E%3Crect x='14' y='3' width='7' height='7'/%3E%3Crect x='14' y='14' width='7' height='7'/%3E%3Crect x='3' y='14' width='7' height='7'/%3E%3C/svg%3E#icon"/></svg>
+                    Dashboard
+                </a>
+                <a href="wallet.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='1' y='4' width='22' height='16' rx='2'/%3E%3Cpath d='M1 10h22'/%3E%3C/svg%3E#icon"/></svg>
+                    Wallet
+                </a>
+                <a href="investments.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M12 2v20M2 12h20'/%3E%3C/svg%3E#icon"/></svg>
+                    Investments
+                </a>
+                <a href="stocks.html" class="nav-item active">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='23 6 13.5 15.5 8.5 10.5 1 17'/%3E%3Cpolyline points='17 6 23 6 23 12'/%3E%3C/svg%3E#icon"/></svg>
+                    Stocks
+                </a>
+                <a href="portfolio.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 6v6l4 2'/%3E%3C/svg%3E#icon"/></svg>
+                    Portfolio
+                </a>
+                <a href="investment-dashboard.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cline x1='12' y1='5' x2='12' y2='19'/%3E%3Cline x1='5' y1='12' x2='19' y2='12'/%3E%3C/svg%3E#icon"/></svg>
+                    Investment Dashboard
+               <a href="inventory.html" class="nav-item">
+
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='2' y='7' width='20' height='14' rx='2' ry='2'/%3E%3Cpath d='M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16'/%3E%3C/svg%3E#icon"/></svg>
+                    Inventory
+                </a>
+                <a href="vip-membership.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M6 9L12 2l6 7M5 9h14v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V9z'/%3E%3C/svg%3E#icon"/></svg>
+                    VIP Membership
+                </a>
+                <a href="giveaways.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='3' y='8' width='18' height='12' rx='2'/%3E%3Cpath d='M7 8V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2'/%3E%3Cline x1='12' y1='11' x2='12' y2='17'/%3E%3C/svg%3E#icon"/></svg>
+                    Giveaways
+                </a>
+                <a href="orders.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='9' cy='21' r='1'/%3E%3Ccircle cx='20' cy='21' r='1'/%3E%3Cpath d='M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6'/%3E%3C/svg%3E#icon"/></svg>
+                    Orders
+                </a>
+                <a href="account.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E#icon"/></svg>
+                    Account
+                </a>
+                <a href="kyc-verification.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='3' y='11' width='18' height='11' rx='2' ry='2'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'/%3E%3C/svg%3E#icon"/></svg>
+                    KYC Verification
+                </a>
+                <a href="support.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/%3E%3C/svg%3E#icon"/></svg>
+                    Support
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logout()">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'/%3E%3Cpolyline points='16 17 21 12 16 7'/%3E%3Cline x1='21' y1='12' x2='9' y2='12'/%3E%3C/svg%3E#icon"/></svg>
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <div class="header-section">
+                <h1>Stock Marketplace</h1>
+                <p>Trade stocks and build your investment portfolio.</p>
+                <div class="search-bar">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E#icon"/></svg>
+                    <input type="text" placeholder="Search stocks by symbol or company name...">
+                </div>
+            </div>
+
+            <!-- Stocks Table -->
+            <div class="section-title">Popular Stocks</div>
+            <div class="content-section">
+                <table class="stock-table">
+                    <thead>
+                        <tr>
+                            <th>Company</th>
+                            <th>Price</th>
+                            <th>Change</th>
+                            <th>Market Cap</th>
+                            <th>Volume</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="stock-symbol">
+                                    <div class="stock-icon">T</div>
+                                    <div class="stock-info">
+                                        <h4>Tesla Inc.</h4>
+                                        <p>TSLA</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="stock-price">$245.30</td>
+                            <td class="stock-change positive">+2.45%</td>
+                            <td>$780.2B</td>
+                            <td>52.3M</td>
+                            <td>
+                                <div class="stock-actions">
+                                    <button class="btn-small" onclick="buyStock('TSLA')">Buy</button>
+                                    <button class="btn-small secondary" onclick="viewDetails('TSLA')">Details</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="stock-symbol">
+                                    <div class="stock-icon" style="background: #0066cc; color: white;">A</div>
+                                    <div class="stock-info">
+                                        <h4>Apple Inc.</h4>
+                                        <p>AAPL</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="stock-price">$189.45</td>
+                            <td class="stock-change positive">+1.23%</td>
+                            <td>$2.9T</td>
+                            <td>48.1M</td>
+                            <td>
+                                <div class="stock-actions">
+                                    <button class="btn-small" onclick="buyStock('AAPL')">Buy</button>
+                                    <button class="btn-small secondary" onclick="viewDetails('AAPL')">Details</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="stock-symbol">
+                                    <div class="stock-icon" style="background: #4285f4; color: white;">G</div>
+                                    <div class="stock-info">
+                                        <h4>Alphabet Inc.</h4>
+                                        <p>GOOGL</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="stock-price">$156.78</td>
+                            <td class="stock-change negative">-0.87%</td>
+                            <td>$2.0T</td>
+                            <td>35.2M</td>
+                            <td>
+                                <div class="stock-actions">
+                                    <button class="btn-small" onclick="buyStock('GOOGL')">Buy</button>
+                                    <button class="btn-small secondary" onclick="viewDetails('GOOGL')">Details</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="stock-symbol">
+                                    <div class="stock-icon" style="background: #0066cc; color: white;">M</div>
+                                    <div class="stock-info">
+                                        <h4>Microsoft Corp.</h4>
+                                        <p>MSFT</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="stock-price">$378.91</td>
+                            <td class="stock-change positive">+3.12%</td>
+                            <td>$2.8T</td>
+                            <td>21.5M</td>
+                            <td>
+                                <div class="stock-actions">
+                                    <button class="btn-small" onclick="buyStock('MSFT')">Buy</button>
+                                    <button class="btn-small secondary" onclick="viewDetails('MSFT')">Details</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="stock-symbol">
+                                    <div class="stock-icon" style="background: #ff9900; color: white;">A</div>
+                                    <div class="stock-info">
+                                        <h4>Amazon.com Inc.</h4>
+                                        <p>AMZN</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="stock-price">$178.23</td>
+                            <td class="stock-change positive">+1.89%</td>
+                            <td>$1.8T</td>
+                            <td>42.8M</td>
+                            <td>
+                                <div class="stock-actions">
+                                    <button class="btn-small" onclick="buyStock('AMZN')">Buy</button>
+                                    <button class="btn-small secondary" onclick="viewDetails('AMZN')">Details</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="stock-symbol">
+                                    <div class="stock-icon" style="background: #1f2937; color: white;">N</div>
+                                    <div class="stock-info">
+                                        <h4>NVIDIA Corp.</h4>
+                                        <p>NVDA</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="stock-price">$876.54</td>
+                            <td class="stock-change positive">+5.23%</td>
+                            <td>$2.1T</td>
+                            <td>38.9M</td>
+                            <td>
+                                <div class="stock-actions">
+                                    <button class="btn-small" onclick="buyStock('NVDA')">Buy</button>
+                                    <button class="btn-small secondary" onclick="viewDetails('NVDA')">Details</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+     <script>
+        function buyStock(symbol) {
+            // Redirect to wallet page with stock symbol and default amount
+            window.location.href = `wallet.html?stock=${symbol}&amount=100`;
+        }
+        // Stock details data
+        const stockDetails = {
+            TSLA: {
+                name: 'Tesla Inc.',
+                price: '$245.30',
+                change: '+2.45%',
+                changeAmount: '+$5.85',
+                marketCap: '$780.2B',
+                volume: '52.3M',
+                description: 'Tesla is a leading electric vehicle manufacturer and renewable energy company. Known for innovation in automotive technology, battery systems, and sustainable energy solutions.',
+                yield: 'Year-to-date performance: +18.5% | 52-week high: $278.50 | 52-week low: $138.80'
+            },
+            AAPL: {
+                name: 'Apple Inc.',
+                price: '$189.45',
+                change: '+1.23%',
+                changeAmount: '+$2.31',
+                marketCap: '$2.9T',
+                volume: '48.1M',
+                description: 'Apple is a multinational technology company that designs, manufactures, and markets consumer electronics, computer software, and online services.',
+                yield: 'Year-to-date performance: +22.3% | 52-week high: $199.62 | 52-week low: $124.17'
+            },
+            GOOGL: {
+                name: 'Alphabet Inc.',
+                price: '$142.85',
+                change: '+0.89%',
+                changeAmount: '+$1.27',
+                marketCap: '$1.8T',
+                volume: '31.2M',
+                description: 'Alphabet is a holding company that owns Google, a search engine and advertising technology company, along with various other tech ventures and innovations.',
+                yield: 'Year-to-date performance: +19.7% | 52-week high: $152.34 | 52-week low: $88.91'
+            },
+            MSFT: {
+                name: 'Microsoft Corporation',
+                price: '$378.91',
+                change: '+1.56%',
+                changeAmount: '+$5.84',
+                marketCap: '$2.8T',
+                volume: '22.5M',
+                description: 'Microsoft develops, manufactures, licenses, and supports software, services, and devices. A leader in cloud computing, productivity software, and enterprise solutions.',
+                yield: 'Year-to-date performance: +25.4% | 52-week high: $416.68 | 52-week low: $213.43'
+            },
+            AMZN: {
+                name: 'Amazon.com Inc.',
+                price: '$178.72',
+                change: '+3.12%',
+                changeAmount: '+$5.38',
+                marketCap: '$1.8T',
+                volume: '58.7M',
+                description: 'Amazon is an e-commerce and cloud computing giant. Operates the largest online marketplace and provides AWS cloud services to millions of businesses worldwide.',
+                yield: 'Year-to-date performance: +28.6% | 52-week high: $188.65 | 52-week low: $101.26'
+            },
+            NVDA: {
+                name: 'NVIDIA Corporation',
+                price: '$875.29',
+                change: '+4.23%',
+                changeAmount: '+$35.67',
+                marketCap: '$2.1T',
+                volume: '35.4M',
+                description: 'NVIDIA designs and manufactures graphics processing units (GPUs) and system-on-chip units. A key player in AI, gaming, data centers, and autonomous vehicles.',
+                yield: 'Year-to-date performance: +85.2% | 52-week high: $920.00 | 52-week low: $380.63'
+            }
+        };
+
+        function viewDetails(symbol) {
+            const details = stockDetails[symbol];
+            if (!details) return;
+
+            // Populate modal with stock details
+            document.getElementById('modalStockName').textContent = details.name;
+            document.getElementById('modalStockSymbol').textContent = symbol;
+            document.getElementById('modalStockPrice').textContent = details.price;
+            const changeElement = document.getElementById('modalStockChange');
+            const changeAmountElement = document.getElementById('modalStockChangeAmount');
+            changeElement.textContent = details.change;
+            changeAmountElement.textContent = details.changeAmount;
+            document.getElementById('modalStockMarketCap').textContent = details.marketCap;
+            document.getElementById('modalStockVolume').textContent = details.volume;
+            document.getElementById('modalStockDescription').textContent = details.description;
+            document.getElementById('modalStockYield').textContent = details.yield;
+
+            // Apply color based on positive/negative change
+            changeElement.classList.remove('positive', 'negative');
+            changeAmountElement.classList.remove('positive', 'negative');
+            if (details.change.startsWith('+')) {
+                changeElement.classList.add('positive');
+                changeAmountElement.classList.add('positive');
+            } else {
+                changeElement.classList.add('negative');
+                changeAmountElement.classList.add('negative');
+            }
+
+            // Open modal
+            document.getElementById('stockDetailsModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeStockModal() {
+            document.getElementById('stockDetailsModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function buyFromModal() {
+            const symbol = document.getElementById('modalStockSymbol').textContent;
+            closeStockModal();
+            buyStock(symbol);
+        }
+        lucide.createIcons();
+    </script>
+    <script>const API_URL='http://localhost:5001/api';function checkAuth(){const token=localStorage.getItem('authToken');if(!token){window.location.href='login.html';return false;}return token;}async function loadUserData(){const token=checkAuth();if(!token)return;try{const response=await fetch(`${API_URL}/auth/profile`,{headers:{'Authorization':`Bearer ${token}`}});const data=await response.json();if(data.success){const user=data.user;const firstName=user.firstName;const lastName=user.lastName;const initials=(firstName.charAt(0)+lastName.charAt(0)).toUpperCase();document.getElementById('userInitial').textContent=initials;document.getElementById('userName').textContent=`${firstName} ${lastName}`;document.getElementById('userEmail').textContent=user.email;const loadingSpinner=document.querySelector('.loading-spinner');if(loadingSpinner){loadingSpinner.style.display='none';}}else{window.location.href='login.html';}}catch(error){console.error('Error loading user data:',error);}}function logout(){if(confirm('Are you sure you want to logout?')){localStorage.removeItem('authToken');localStorage.removeItem('user');window.location.href='login.html';}}window.addEventListener('load',loadUserData);</script>
+    <script src="user-data.js"></script>
+
+    <!-- Stock Details Modal -->
+    <div class="modal-overlay" id="stockDetailsModal">
+        <div class="stock-details-modal">
+            <div class="modal-header">
+                <div class="modal-header-content">
+                    <h2 id="modalStockName">Stock Name</h2>
+                    <p id="modalStockSymbol">SYMBOL</p>
+                </div>
+                <button class="modal-close" onclick="closeStockModal()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Price Section -->
+                <div class="stock-detail-section">
+                    <div class="detail-label">Current Price</div>
+                    <div class="detail-value" id="modalStockPrice">$0.00</div>
+                    <div class="price-info">
+                        <div class="price-item">
+                            <div class="price-item-label">Change</div>
+                            <div class="price-item-value" id="modalStockChange">+0.00%</div>
+                        </div>
+                        <div class="price-item">
+                            <div class="price-item-label">Amount</div>
+                            <div class="price-item-value" id="modalStockChangeAmount">+$0.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Market Info Section -->
+                <div class="stock-detail-section">
+                    <div class="detail-label">Market Information</div>
+                    <div class="price-info">
+                        <div class="price-item">
+                            <div class="price-item-label">Market Cap</div>
+                            <div class="price-item-value" id="modalStockMarketCap">$0.0B</div>
+                        </div>
+                        <div class="price-item">
+                            <div class="price-item-label">Volume</div>
+                            <div class="price-item-value" id="modalStockVolume">0M</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description Section -->
+                <div class="stock-detail-section">
+                    <div class="detail-label">About</div>
+                    <div class="description-text" id="modalStockDescription">Loading description...</div>
+                </div>
+
+                <!-- Yield Section -->
+                <div class="stock-detail-section">
+                    <div class="yield-info">
+                        <div class="yield-info-title">Performance & Range</div>
+                        <div class="yield-info-content" id="modalStockYield">Loading yield information...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-primary" onclick="buyFromModal()">Buy Now</button>
+                <button class="modal-btn modal-btn-secondary" onclick="closeStockModal()">Close</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

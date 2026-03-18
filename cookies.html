@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Cookie Policy — TeslasCap</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.383.0/lucide.min.js"></script>
+<style>
+:root {
+  --bg: #ffffff;
+  --surface: #f7f7f7;
+  --card: #ffffff;
+  --border: #e8e8e8;
+  --border2: #d4d4d4;
+  --red: #e31937;
+  --red-dark: #b81530;
+  --red-bg: #fff0f2;
+  --red-border: rgba(227,25,55,0.15);
+  --text: #171a20;
+  --text2: #3e4044;
+  --muted: #6b6d72;
+  --light: #f4f4f4;
+  --shadow: 0 4px 24px rgba(0,0,0,0.07);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.11);
+  --radius: 10px;
+  --font: 'Outfit', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:#f0f0f0;}::-webkit-scrollbar-thumb{background:#d0d0d0;border-radius:3px;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(255,255,255,0.95);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);height:62px;display:flex;align-items:center;padding:0 48px;gap:36px;}
+.nav-logo{font-size:19px;font-weight:800;letter-spacing:-0.02em;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.nav-t{background:var(--red);color:#fff;font-weight:900;font-size:14px;width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;}
+.nav-links{display:flex;gap:30px;list-style:none;flex:1;}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:13px;font-weight:500;transition:color .2s;}
+.nav-links a:hover{color:var(--red);}
+.nav-right{display:flex;gap:12px;margin-left:auto;align-items:center;}
+.nav-sign{font-size:13px;font-weight:500;color:var(--text2);text-decoration:none;transition:color .2s;}
+.nav-sign:hover{color:var(--red);}
+.nav-btn{background:var(--red);color:#fff;padding:9px 24px;border-radius:5px;font-size:13px;font-weight:700;text-decoration:none;transition:background .2s;}
+.nav-btn:hover{background:var(--red-dark);}
+
+/* PAGE HEADER */
+.page-header{padding:120px 60px 60px;background:var(--surface);border-bottom:1px solid var(--border);margin-top:62px;}
+.page-title{font-size:48px;font-weight:800;letter-spacing:-0.02em;color:var(--text);margin-bottom:16px;}
+.page-subtitle{font-size:18px;color:var(--muted);max-width:600px;line-height:1.7;}
+
+/* SECTIONS */
+.section{padding:80px 60px;}
+.sec-white{background:#fff;}
+.content{max-width:800px;margin:0 auto;}
+.content h2{font-size:24px;font-weight:700;color:var(--text);margin:40px 0 16px;}
+.content h3{font-size:18px;font-weight:700;color:var(--text);margin:24px 0 12px;}
+.content p{color:var(--muted);line-height:1.8;margin-bottom:16px;}
+.content ul{margin-left:20px;margin-bottom:16px;}
+.content li{color:var(--muted);line-height:1.8;margin-bottom:8px;}
+.cookie-table{width:100%;border-collapse:collapse;margin:20px 0;}
+.cookie-table th,.cookie-table td{border:1px solid var(--border);padding:12px;text-align:left;}
+.cookie-table th{background:var(--surface);font-weight:700;color:var(--text);}
+.cookie-table td{color:var(--muted);font-size:14px;}
+
+/* FOOTER */
+footer{background:#fff;border-top:1px solid var(--border);padding:60px 60px 36px;}
+.footer-red-bar{height:3px;background:var(--red);margin:-60px -60px 56px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px;}
+.footer-brand-name{font-size:20px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.footer-brand p{color:var(--muted);font-size:13px;max-width:260px;line-height:1.7;margin-bottom:10px;}
+.footer-col h4{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--text);font-weight:700;margin-bottom:16px;}
+.footer-col a{display:block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:10px;transition:color .15s;}
+.footer-col a:hover{color:var(--red);}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:24px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);}
+
+@media(max-width:768px){
+  nav{padding:0 24px;}
+  .page-header{padding:100px 24px 40px;}
+  .section{padding:48px 24px;}
+  .cookie-table{font-size:12px;}
+  .cookie-table th,.cookie-table td{padding:8px;}
+}
+</style>
+<script src="page-transition-loader.js"></script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo"><span class="nav-t">T</span>TeslasCap</a>
+  <ul class="nav-links">
+    <li><a href="index.html#invest">Invest</a></li>
+    <li><a href="index.html#stocks">Stocks</a></li>
+    <li><a href="index.html#inventory">Inventory</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="login.html" class="nav-sign">Sign In</a>
+    <a href="register.html" class="nav-btn">Get Started</a>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <h1 class="page-title">Cookie Policy</h1>
+  <p class="page-subtitle">Learn how TeslasCap uses cookies and similar tracking technologies to enhance your experience.</p>
+</div>
+
+<!-- CONTENT -->
+<section class="section sec-white">
+  <div class="content">
+    <h2>What Are Cookies?</h2>
+    <p>Cookies are small text files stored on your device that help us recognize you when you return to our platform. They allow us to remember your preferences and improve your experience.</p>
+
+    <h2>Types of Cookies We Use</h2>
+
+    <h3>Essential Cookies</h3>
+    <p>These cookies are necessary for the platform to function properly. They enable you to log in, maintain your session, and access secure features. You cannot disable these cookies.</p>
+
+    <h3>Performance Cookies</h3>
+    <p>We use these cookies to analyze how you use our platform, including which features you access and how long you spend on each page. This helps us improve our services.</p>
+
+    <h3>Functional Cookies</h3>
+    <p>These cookies remember your preferences, such as language settings, layout preferences, and watchlist selections, so you don't have to reset them each time you visit.</p>
+
+    <h3>Marketing Cookies</h3>
+    <p>With your consent, we use marketing cookies to show you relevant advertisements and track the effectiveness of our marketing campaigns.</p>
+
+    <h2>Cookie Details</h2>
+    <table class="cookie-table">
+      <thead>
+        <tr>
+          <th>Cookie Name</th>
+          <th>Type</th>
+          <th>Purpose</th>
+          <th>Duration</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>session_id</td>
+          <td>Essential</td>
+          <td>Maintains your login session</td>
+          <td>Session</td>
+        </tr>
+        <tr>
+          <td>user_preferences</td>
+          <td>Functional</td>
+          <td>Stores your account preferences</td>
+          <td>1 year</td>
+        </tr>
+        <tr>
+          <td>analytics_token</td>
+          <td>Performance</td>
+          <td>Tracks platform usage analytics</td>
+          <td>2 years</td>
+        </tr>
+        <tr>
+          <td>marketing_id</td>
+          <td>Marketing</td>
+          <td>Tracks marketing campaign effectiveness</td>
+          <td>1 year</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Third-Party Cookies</h2>
+    <p>We work with third-party service providers who may set their own cookies on our platform for analytics, advertising, and functionality purposes. These include:</p>
+    <ul>
+      <li>Google Analytics for usage analytics</li>
+      <li>Stripe for payment processing</li>
+      <li>Intercom for customer support</li>
+    </ul>
+
+    <h2>Your Cookie Choices</h2>
+    <p>You can control cookies through your browser settings. Most browsers allow you to refuse cookies or alert you when cookies are being sent. However, blocking essential cookies may prevent you from using certain features of our platform.</p>
+
+    <h3>How to Manage Cookies</h3>
+    <ul>
+      <li><strong>Chrome:</strong> Settings → Privacy and security → Cookies and other site data</li>
+      <li><strong>Firefox:</strong> Preferences → Privacy & Security → Cookies and Site Data</li>
+      <li><strong>Safari:</strong> Preferences → Privacy → Cookies and website data</li>
+      <li><strong>Edge:</strong> Settings → Privacy, search, and services → Clear browsing data</li>
+    </ul>
+
+    <h2>Do Not Track</h2>
+    <p>Some browsers include a "Do Not Track" feature. Currently, there is no industry standard for recognizing Do Not Track signals, so TeslasCap does not respond to these requests. However, you can use other tools to control cookies as described above.</p>
+
+    <h2>Updates to This Policy</h2>
+    <p>We may update this cookie policy from time to time to reflect changes in our practices or technology. We will notify you of significant changes by updating the date at the top of this policy.</p>
+
+    <h2>Contact Us</h2>
+    <p>If you have questions about our use of cookies, please contact us at <strong>+1-800-TESLASCAP</strong></p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-red-bar"></div>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-brand-name"><span class="nav-t">T</span> TeslasCap</div>
+      <p>The all-in-one platform for Tesla investing, real-time stocks, crypto wallet, and premium EV inventory.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="about.html">About</a>
+      <a href="careers.html">Careers</a>
+      <a href="press.html">Press</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <a href="help-center.html">Help Center</a>
+      <a href="terms.html">Terms of Service</a>
+      <a href="api-docs.html">API Docs</a>
+      <a href="status.html">Status</a>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="disclosures.html">Disclosures</a>
+      <a href="cookies.html">Cookie Policy</a>
+      <a href="compliance.html">Compliance</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div>© 2026 TeslasCap. All rights reserved.</div>
+    <div>Invest. Trade. Drive.</div>
+  </div>
+</footer>
+
+<script>
+if (typeof lucide !== "undefined") {
+  lucide.createIcons();
+}
+</script>
+</body>
+</html>

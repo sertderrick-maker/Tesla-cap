@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet - TeslasCap</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 200px;
+            background: #fff;
+            border-right: 1px solid #e0e0e0;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 16px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #c41e3a;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .user-info p {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin: 0;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: #f5f5f5;
+            color: #c41e3a;
+            font-weight: 600;
+        }
+
+        .sidebar-logout {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            padding: 0 16px;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 10px;
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            color: #c41e3a;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #c41e3a;
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 200px;
+            padding: 40px;
+        }
+
+        .header {
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        /* Balance Card */
+        .balance-card {
+            background: linear-gradient(135deg, #c41e3a 0%, #8b1528 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 15px rgba(196, 30, 58, 0.2);
+        }
+
+        .balance-card-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .balance-card-amount {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .balance-card-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .balance-card-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .balance-card-btn.deposit {
+            background: white;
+            color: #c41e3a;
+        }
+
+        .balance-card-btn.deposit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .balance-card-btn.withdraw {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .balance-card-btn.withdraw:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-card-label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .stat-card-change {
+            font-size: 12px;
+            color: #4caf50;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background: linear-gradient(135deg, #c41e3a 0%, #8b1528 100%);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .modal-header-content h2 {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .modal-header-content p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .modal-close:hover {
+            opacity: 1;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-section {
+            margin-bottom: 24px;
+        }
+
+        .form-section-title {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .balance-display {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .balance-display-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .balance-display-value {
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            background: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .input-group input::placeholder {
+            color: #999;
+        }
+
+        .payment-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .payment-method {
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+            color: white;
+        }
+
+        .payment-method:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .payment-method.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .payment-method input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .payment-method-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .payment-method-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .payment-method-details h4 {
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .payment-method-details p {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        /* Wallet Address Display */
+        .wallet-address-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+
+        .wallet-address-section.active {
+            display: block;
+        }
+
+        .wallet-address-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .wallet-address-header h4 {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .wallet-address-copy-btn {
+            background: rgba(196, 30, 58, 0.2);
+            border: 1px solid rgba(196, 30, 58, 0.4);
+            color: rgba(196, 30, 58, 1);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .wallet-address-copy-btn:hover {
+            background: rgba(196, 30, 58, 0.3);
+            border-color: rgba(196, 30, 58, 0.6);
+        }
+
+        .wallet-address-display {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: rgba(76, 175, 80, 1);
+            word-break: break-all;
+            line-height: 1.6;
+        }
+
+        .fee-breakdown {
+            background: rgba(76, 175, 80, 0.15);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .fee-breakdown-title {
+            color: rgba(76, 175, 80, 0.9);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .fee-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(76, 175, 80, 0.2);
+        }
+
+        .fee-row label {
+            color: rgba(76, 175, 80, 0.8);
+            font-size: 13px;
+        }
+
+        .fee-row value {
+            color: rgba(76, 175, 80, 0.8);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .fee-row.total {
+            border-bottom: none;
+            border-top: 1px solid rgba(76, 175, 80, 0.2);
+            padding-top: 12px;
+            margin-top: 12px;
+        }
+
+        .fee-row.total label,
+        .fee-row.total value {
+            color: rgba(76, 175, 80, 1);
+            font-weight: 700;
+        }
+
+        /* Withdraw Fee Breakdown */
+        .fee-breakdown.withdraw {
+            background: rgba(220, 53, 69, 0.15);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .fee-breakdown.withdraw .fee-breakdown-title {
+            color: rgba(220, 53, 69, 0.9);
+        }
+
+        .fee-breakdown.withdraw .fee-row label,
+        .fee-breakdown.withdraw .fee-row value {
+            color: rgba(220, 53, 69, 0.9);
+        }
+
+        .fee-breakdown.withdraw .fee-row.total {
+            border-top: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .fee-breakdown.withdraw .fee-row.total label,
+        .fee-breakdown.withdraw .fee-row.total value {
+            color: rgba(220, 53, 69, 1);
+        }
+
+        .modal-footer {
+            padding: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .deposit-btn {
+            width: 100%;
+            padding: 12px;
+            background: #c41e3a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .deposit-btn:hover {
+            background: #a01729;
+            transform: translateY(-2px);
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #999;
+        }
+
+        /* Confirmation Popup */
+        .confirmation-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .confirmation-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .confirmation-popup {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: popupSlideIn 0.3s ease;
+        }
+
+        @keyframes popupSlideIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .confirmation-icon {
+            width: 80px;
+            height: 80px;
+            background: #4caf50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+        }
+
+        .confirmation-popup h3 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .confirmation-popup p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .confirmation-popup .info-box {
+            background: #f5f5f5;
+            border-left: 4px solid #c41e3a;
+            padding: 12px 16px;
+            text-align: left;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .confirmation-popup .info-box strong {
+            color: #333;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .confirmation-btn {
+            width: 100%;
+            padding: 12px;
+            background: #c41e3a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .confirmation-btn:hover {
+            background: #a01729;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 180px;
+            }
+
+            .main-content {
+                margin-left: 180px;
+                padding: 30px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .balance-card {
+                padding: 24px;
+            }
+
+            .balance-card-amount {
+                font-size: 28px;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+                padding: 16px;
+                display: flex;
+                align-items: center;
+                gap: 20px;
+                overflow-x: auto;
+            }
+
+            .sidebar-header {
+                padding: 0;
+                border-bottom: none;
+                margin-bottom: 0;
+                flex-shrink: 0;
+            }
+
+            .sidebar-nav {
+                display: flex;
+                gap: 8px;
+                flex: 1;
+                overflow-x: auto;
+                padding-bottom: 8px;
+            }
+
+            .sidebar-nav li {
+                flex-shrink: 0;
+            }
+
+            .sidebar-nav a {
+                padding: 8px 12px;
+                font-size: 12px;
+                white-space: nowrap;
+            }
+
+            .sidebar-logout {
+                position: relative;
+                bottom: auto;
+                left: auto;
+                right: auto;
+                padding: 0;
+                flex-shrink: 0;
+            }
+
+            .logout-btn {
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .header p {
+                font-size: 14px;
+            }
+
+            .balance-card {
+                padding: 20px;
+                margin-bottom: 30px;
+            }
+
+            .balance-card-amount {
+                font-size: 24px;
+            }
+
+            .balance-card-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .balance-card-btn {
+                width: 100%;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .stat-card {
+                padding: 16px;
+            }
+
+            .stat-card-label {
+                font-size: 11px;
+            }
+
+            .stat-card-value {
+                font-size: 20px;
+            }
+
+            .modal {
+                width: 95%;
+                max-width: 100%;
+                max-height: 85vh;
+            }
+
+            .modal-header {
+                padding: 16px;
+            }
+
+            .modal-header-content h2 {
+                font-size: 18px;
+            }
+
+            .modal-header-content p {
+                font-size: 13px;
+            }
+
+            .modal-body {
+                padding: 16px;
+            }
+
+            .modal-footer {
+                padding: 16px;
+            }
+
+            .confirmation-popup {
+                width: 90%;
+                max-width: 100%;
+                padding: 30px 20px;
+            }
+
+            .confirmation-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 30px;
+            }
+
+            .confirmation-popup h3 {
+                font-size: 20px;
+            }
+
+            .confirmation-popup p {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                flex-wrap: wrap;
+                padding: 12px;
+                gap: 12px;
+            }
+
+            .sidebar-header {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .user-info h4 {
+                font-size: 13px;
+            }
+
+            .user-info p {
+                font-size: 11px;
+            }
+
+            .sidebar-nav {
+                width: 100%;
+                gap: 4px;
+            }
+
+            .sidebar-nav a {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+
+            .main-content {
+                padding: 16px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+                margin-bottom: 4px;
+            }
+
+            .header p {
+                font-size: 13px;
+            }
+
+            .balance-card {
+                padding: 16px;
+                margin-bottom: 24px;
+            }
+
+            .balance-card-label {
+                font-size: 12px;
+            }
+
+            .balance-card-amount {
+                font-size: 20px;
+                margin-bottom: 16px;
+            }
+
+            .balance-card-btn {
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+
+            .stat-card {
+                padding: 12px;
+            }
+
+            .stat-card-label {
+                font-size: 10px;
+            }
+
+            .stat-card-value {
+                font-size: 18px;
+            }
+
+            .stat-card-change {
+                font-size: 11px;
+            }
+
+            .modal {
+                width: 98%;
+                max-height: 90vh;
+            }
+
+            .modal-header {
+                padding: 12px;
+            }
+
+            .modal-header-content h2 {
+                font-size: 16px;
+            }
+
+            .modal-header-content p {
+                font-size: 12px;
+            }
+
+            .modal-body {
+                padding: 12px;
+            }
+
+            .modal-footer {
+                padding: 12px;
+            }
+
+            .form-section {
+                margin-bottom: 16px;
+            }
+
+            .input-group label {
+                font-size: 12px;
+            }
+
+            .input-group input {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .payment-method {
+                padding: 10px;
+            }
+
+            .payment-method-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+
+            .payment-method-details h4 {
+                font-size: 13px;
+            }
+
+            .payment-method-details p {
+                font-size: 11px;
+            }
+
+            .wallet-address-section {
+                padding: 16px;
+                margin-top: 16px;
+            }
+
+            .wallet-address-header h4 {
+                font-size: 13px;
+            }
+
+            .wallet-address-display {
+                padding: 10px;
+                font-size: 11px;
+            }
+
+            .deposit-btn {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .confirmation-popup {
+                padding: 24px 16px;
+            }
+
+            .confirmation-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 24px;
+            }
+
+            .confirmation-popup h3 {
+                font-size: 18px;
+            }
+
+            .confirmation-popup p {
+                font-size: 12px;
+            }
+
+            .confirmation-popup .info-box {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+        }
+    </style>
+    <script src="page-transition-loader.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="user-avatar" id="userInitial">J</div>
+            <div class="user-info">
+                <h4 id="userName">Loading...</h4>
+                <p id="userEmail">user@example.com</p>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="wallet.html" class="active">Wallet</a></li>
+            <li><a href="investments.html">Investments</a></li>
+            <li><a href="stocks.html">Stocks</a></li>
+            <li><a href="portfolio.html">Portfolio</a></li>
+            <li><a href="investment-dashboard.html">Investment Dashboard</a></li>
+            <li><a href="inventory.html">Inventory</a></li>
+            <li><a href="vip-membership.html">VIP Membership</a></li>
+            <li><a href="giveaways.html">Giveaways</a></li>
+            <li><a href="orders.html">Orders</a></li>
+            <li><a href="account.html">Account</a></li>
+            <li><a href="kyc-verification.html">KYC Verification</a></li>
+            <li><a href="support.html">Support</a></li>
+        </nav>
+
+        <div class="sidebar-logout">
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="header">
+            <h1>Wallet</h1>
+            <p>Manage your funds and transactions</p>
+        </div>
+
+        <!-- Balance Card -->
+        <div class="balance-card">
+            <div class="balance-card-label">Available Balance</div>
+            <div class="balance-card-amount">$0.00</div>
+            <div class="balance-card-actions">
+                <button class="balance-card-btn deposit" onclick="openDepositModal()">+ Deposit</button>
+                <button class="balance-card-btn withdraw" onclick="openWithdrawModal()">- Withdraw</button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-card-label">Total Deposits</div>
+                <div class="stat-card-value">$0.00</div>
+                <div class="stat-card-change">This month</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-label">Total Withdrawals</div>
+                <div class="stat-card-value">$0.00</div>
+                <div class="stat-card-change">This month</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-label">Total Invested</div>
+                <div class="stat-card-value">$0.00</div>
+                <div class="stat-card-change">Portfolio value</div>
+            </div>
+        </div>
+
+        <div class="loading-spinner">Loading...</div>
+    </main>
+
+    <!-- CONFIRMATION POPUP -->
+    <div class="confirmation-overlay" id="confirmationOverlay" onclick="closeConfirmationPopup()">
+        <div class="confirmation-popup" onclick="event.stopPropagation()">
+            <div class="confirmation-icon">✓</div>
+            <h3>Payment Confirmed</h3>
+            <p>Your funds will be confirmed and added to your balance shortly.</p>
+            <div class="info-box">
+                <strong>Processing Time</strong>
+                Your balance will be updated within minutes. Processing may take longer depending on the cryptocurrency network conditions and confirmation requirements.
+            </div>
+            <button class="confirmation-btn" onclick="closeConfirmationPopup()">Got it, thanks!</button>
+        </div>
+    </div>
+
+    <!-- DEPOSIT MODAL -->
+    <div class="modal-overlay" id="depositModal" onclick="closeDepositModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <div class="modal-header-content">
+                    <h2>Deposit Funds</h2>
+                    <p>Add money to your wallet using your preferred payment method</p>
+                </div>
+                <button class="modal-close" onclick="closeDepositModal()">✕</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <!-- Available Balance -->
+                <div class="form-section">
+                    <div class="form-section-title">Available Balance</div>
+                    <div class="balance-display">
+                        <div class="balance-display-label">Current Balance</div>
+                        <div class="balance-display-value">$0.00</div>
+                    </div>
+                </div>
+
+                <!-- Deposit Amount -->
+                <div class="form-section">
+                    <div class="form-section-title">Deposit Amount</div>
+                    <div class="input-group">
+                        <label>Amount ($)</label>
+                        <input type="number" id="depositAmount" placeholder="0.00" min="0" step="0.01" oninput="updateDepositFeeBreakdown()">
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="form-section">
+                    <div class="form-section-title">Payment Method</div>
+                    <div class="payment-methods">
+                        <label class="payment-method active" onclick="selectDepositMethod(this, 'bitcoin')">
+                            <input type="radio" name="payment" value="bitcoin" checked>
+                            <div class="payment-method-info">
+                                <div class="payment-method-icon" style="background: #f7931a;">₿</div>
+                                <div class="payment-method-details">
+                                    <h4>Bitcoin</h4>
+                                    <p>BTC</p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="payment-method" onclick="selectDepositMethod(this, 'ethereum')">
+                            <input type="radio" name="payment" value="ethereum">
+                            <div class="payment-method-info">
+                                <div class="payment-method-icon" style="background: #627eea;">Ξ</div>
+                                <div class="payment-method-details">
+                                    <h4>Ethereum</h4>
+                                    <p>ETH</p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="payment-method" onclick="selectDepositMethod(this, 'litecoin')">
+                            <input type="radio" name="payment" value="litecoin">
+                            <div class="payment-method-info">
+                                <div class="payment-method-icon" style="background: #345d9d;">Ł</div>
+                                <div class="payment-method-details">
+                                    <h4>Litecoin</h4>
+                                    <p>LTC</p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="payment-method" onclick="selectDepositMethod(this, 'usdt')">
+                            <input type="radio" name="payment" value="usdt">
+                            <div class="payment-method-info">
+                                <div class="payment-method-icon" style="background: #26a17b;">₮</div>
+                                <div class="payment-method-details">
+                                    <h4>USDT (TRC20)</h4>
+                                    <p>Tether</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Wallet Address Display -->
+                <div class="wallet-address-section active" id="depositAddressSection">
+                    <div class="wallet-address-header">
+                        <h4>Send <span id="depositCryptoName">Bitcoin</span> to this address:</h4>
+                        <button class="wallet-address-copy-btn" onclick="copyDepositAddress()">📋 Copy</button>
+                    </div>
+                    <div class="wallet-address-display" id="depositAddressDisplay"></div>
+                </div>
+
+                <!-- Fee Breakdown -->
+                <div class="form-section">
+                    <div class="fee-breakdown">
+                        <div class="fee-breakdown-title">Fee Breakdown</div>
+                        <div class="fee-row">
+                            <label>Deposit Amount:</label>
+                            <value id="feeDepositAmount">$0.00</value>
+                        </div>
+                        <div class="fee-row">
+                            <label>Processing Fee:</label>
+                            <value id="feeDepositProcessing">$0.00</value>
+                        </div>
+                        <div class="fee-row total">
+                            <label>Total Amount:</label>
+                            <value id="feeDepositTotal">$0.00</value>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button class="deposit-btn" onclick="submitDeposit()">I've Paid</button>
+            </div>
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <!-- WITHDRAW MODAL -->
+    <div class="modal-overlay" id="withdrawModal" onclick="closeWithdrawModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <div class="modal-header-content">
+                    <h2>Withdraw Funds</h2>
+                    <p>Transfer money from your wallet to your chosen destination</p>
+                </div>
+                <button class="modal-close" onclick="closeWithdrawModal()">✕</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <!-- Available Balance -->
+                <div class="form-section">
+                    <div class="form-section-title">Available Balance</div>
+                    <div class="balance-display">
+                        <div class="balance-display-label">Current Balance</div>
+                        <div class="balance-display-value">$0.00</div>
+                    </div>
+                </div>
+
+                <!-- Withdrawal Amount -->
+                <div class="form-section">
+                    <div class="form-section-title">Withdrawal Amount</div>
+                    <div class="input-group">
+                        <label>Amount ($)</label>
+                        <input type="number" id="withdrawAmount" placeholder="0.00" min="0" step="0.01" oninput="updateWithdrawFeeBreakdown()">
+                    </div>
+                    <div style="font-size: 12px; color: rgba(255, 255, 255, 0.6); margin-top: 8px;">Maximum withdrawal: $0.00</div>
+                </div>
+
+                <!-- Destination Method -->
+                <div class="form-section">
+                    <div class="form-section-title">Destination Method</div>
+                    <div class="payment-methods">
+                        <label class="payment-method active" onclick="selectWithdrawMethod(this, 'bitcoin')">
+                            <input type="radio" name="withdraw" value="bitcoin" checked>
+                            <div class="payment-method-info">
+                                <div class="payment-method-icon" style="background: #f7931a;">₿</div>
+                                <div class="payment-method-details">
+                                    <h4>Bitcoin</h4>
+                                    <p>BTC</p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="payment-method" onclick="selectWithdrawMethod(this, 'ethereum')">
+                            <input type="radio" name="withdraw" value="ethereum">
+                            <div class="payment-method-info">
+                                <div class="payment-method-icon" style="background: #627eea;">Ξ</div>
+                                <div class="payment-method-details">
+                                    <h4>Ethereum</h4>
+                                    <p>ETH</p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="payment-method" onclick="selectWithdrawMethod(this, 'litecoin')">
+                            <input type="radio" name="withdraw" value="litecoin">
+                            <div class="payment-method-info">
+                                <div class="payment-method-icon" style="background: #345d9d;">Ł</div>
+                                <div class="payment-method-details">
+                                    <h4>Litecoin</h4>
+                                    <p>LTC</p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="payment-method" onclick="selectWithdrawMethod(this, 'usdt')">
+                            <input type="radio" name="withdraw" value="usdt">
+                            <div class="payment-method-info">
+                                <div class="payment-method-icon" style="background: #26a17b;">₮</div>
+                                <div class="payment-method-details">
+                                    <h4>USDT (TRC20)</h4>
+                                    <p>Tether</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Fee Breakdown -->
+                <div class="form-section">
+                    <div class="fee-breakdown withdraw">
+                        <div class="fee-breakdown-title">Fee Breakdown</div>
+                        <div class="fee-row">
+                            <label>Withdrawal Amount:</label>
+                            <value id="feeWithdrawAmount">$0.00</value>
+                        </div>
+                        <div class="fee-row">
+                            <label>Processing Fee:</label>
+                            <value id="feeWithdrawProcessing">$0.00</value>
+                        </div>
+                        <div class="fee-row total">
+                            <label>You'll Receive:</label>
+                            <value id="feeWithdrawReceive">$0.00</value>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wallet Address Display for Withdrawal -->
+                <div class="wallet-address-section active" id="withdrawAddressSection">
+                    <div class="wallet-address-header">
+                        <h4>Withdraw to <span id="withdrawCryptoName">Bitcoin</span> address:</h4>
+                        <button class="wallet-address-copy-btn" onclick="copyWithdrawAddress()">📋 Copy</button>
+                    </div>
+                    <div class="wallet-address-display" id="withdrawAddressDisplay"></div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button class="deposit-btn" onclick="submitWithdraw()" style="background: white; color: #c41e3a;">Confirm Withdrawal</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5001/api';
+        let investmentAmount = null;
+        let investmentPlanName = null;
+        let stockSymbol = null;
+        let vipAmount = null;
+        let vipTierName = null;
+
+        // Get investment/stock/VIP amount from URL parameter
+        function getInvestmentFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            investmentAmount = urlParams.get('investmentAmount');
+            investmentPlanName = urlParams.get('planName');
+            stockSymbol = urlParams.get('stock');
+            vipAmount = urlParams.get('vipAmount');
+            vipTierName = urlParams.get('vipTier');
+            
+            const amount = investmentAmount || vipAmount || (stockSymbol ? '100' : null);
+            
+            if (amount) {
+                // Pre-fill the deposit amount
+                setTimeout(() => {
+                    document.getElementById('depositAmount').value = amount;
+                    updateDepositFeeBreakdown();
+                    // Auto-open the deposit modal
+                    openDepositModal();
+                }, 500);
+            }
+        }
+
+        // Wallet addresses - will be loaded from backend
+        let walletAddresses = {
+            bitcoin: '',
+            ethereum: '',
+            litecoin: '',
+            usdt: ''
+        };
+
+        // NEW: Fetch crypto addresses from backend API (PUBLIC ENDPOINT - no auth required)
+        async function loadCryptoAddresses() {
+            try {
+                const response = await fetch(`${API_URL}/admin/crypto-addresses-public`);
+                const data = await response.json();
+                
+                if (data.success && data.addresses) {
+                    // Map addresses from backend to our format
+                    data.addresses.forEach(addr => {
+                        // Map by cryptocurrency name (Bitcoin, Ethereum, Litecoin, USDT)
+                        const cryptoType = addr.cryptocurrency.toLowerCase();
+                        if (walletAddresses.hasOwnProperty(cryptoType)) {
+                            walletAddresses[cryptoType] = addr.address;
+                        }
+                    });
+                    
+                    console.log('✅ Crypto addresses loaded from backend:', walletAddresses);
+                } else {
+                    console.warn('⚠️ Failed to load crypto addresses from backend');
+                    setDefaultAddresses();
+                }
+            } catch (error) {
+                console.error('❌ Error loading crypto addresses:', error);
+                setDefaultAddresses();
+            }
+        }
+
+        // Fallback default addresses
+        function setDefaultAddresses() {
+            walletAddresses = {
+                bitcoin: '1A1z7agoat2GPFH7pPmmCfRfiWrVivnJA2',
+                ethereum: '0x742d35Cc6634C0532925a3b844Bc9e7595f42bE',
+                litecoin: 'LcnEKE7109abjF1zqSCHjVDZciMNrWbPcJ',
+                usdt: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'
+            };
+        }
+
+        const cryptoNames = {
+            bitcoin: 'Bitcoin',
+            ethereum: 'Ethereum',
+            litecoin: 'Litecoin',
+            usdt: 'USDT (TRC20)'
+        };
+
+        // Check authentication
+        function checkAuth() {
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            return token;
+        }
+
+        // Load user data
+        async function loadUserData() {
+            const token = checkAuth();
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_URL}/auth/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    const user = data.user;
+                    const firstName = user.firstName;
+                    const lastName = user.lastName;
+                    const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+
+                    document.getElementById('userInitial').textContent = initials;
+                    document.getElementById('userName').textContent = `${firstName} ${lastName}`;
+                    document.getElementById('userEmail').textContent = user.email;
+
+                    const loadingSpinner = document.querySelector('.loading-spinner');
+                    if (loadingSpinner) {
+                        loadingSpinner.style.display = 'none';
+                    }
+
+                    // Check for investment amount in URL
+                    getInvestmentFromURL();
+                } else {
+                    window.location.href = 'login.html';
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
+        // Open deposit modal
+        function openDepositModal() {
+            document.getElementById('depositModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            // Set Bitcoin address by default when modal opens
+            document.getElementById('depositAddressDisplay').textContent = walletAddresses.bitcoin || '';
+        }
+
+        // Close deposit modal
+        function closeDepositModal(event) {
+            if (event && event.target.id !== 'depositModal') return;
+            document.getElementById('depositModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Select deposit method
+        function selectDepositMethod(element, method) {
+            document.querySelectorAll('#depositModal .payment-method').forEach(item => {
+                item.classList.remove('active');
+            });
+            element.classList.add('active');
+            element.querySelector('input[type="radio"]').checked = true;
+
+            // Update wallet address display
+            document.getElementById('depositCryptoName').textContent = cryptoNames[method];
+            const address = walletAddresses[method] || 'Loading address...';
+            document.getElementById('depositAddressDisplay').textContent = address;
+            console.log('Selected method:', method, 'Address:', address);
+        }
+
+        // Copy deposit address
+        function copyDepositAddress() {
+            const address = document.getElementById('depositAddressDisplay').textContent;
+            navigator.clipboard.writeText(address).then(() => {
+                alert('Address copied to clipboard!');
+            }).catch(() => {
+                alert('Failed to copy address');
+            });
+        }
+
+        // Update deposit fee breakdown
+        function updateDepositFeeBreakdown() {
+            const amount = parseFloat(document.getElementById('depositAmount').value) || 0;
+            const processingFee = amount * 0.02; // 2% fee
+            const total = amount + processingFee;
+
+            document.getElementById('feeDepositAmount').textContent = `$${amount.toFixed(2)}`;
+            document.getElementById('feeDepositProcessing').textContent = `$${processingFee.toFixed(2)}`;
+            document.getElementById('feeDepositTotal').textContent = `$${total.toFixed(2)}`;
+        }
+
+        // Get auth token
+        function getAuthToken() {
+            return localStorage.getItem('authToken') || localStorage.getItem('token');
+        }
+
+        // Submit deposit to backend
+        async function submitDeposit() {
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            const depositMethod = document.querySelector('input[name="payment"]:checked').value;
+            const walletAddress = document.getElementById('depositAddressDisplay').textContent;
+            const token = getAuthToken();
+
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+
+            if (!token) {
+                alert('Please login first');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/wallet/deposit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        cryptocurrency: depositMethod,
+                        amount: amount,
+                        walletAddress: walletAddress
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    closeDepositModal();
+                    showConfirmationPopup('deposit');
+                    // Save deposit ID for tracking
+                    localStorage.setItem('lastDepositId', data.depositId);
+                    // Reset form
+                    document.getElementById('depositAmount').value = '';
+                    // Refresh balance after 2 seconds
+                    setTimeout(loadBalance, 2000);
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to submit deposit'));
+                }
+            } catch (error) {
+                console.error('Deposit error:', error);
+                alert('Network error. Please try again.');
+            }
+        }
+
+        // Open withdraw modal
+        function openWithdrawModal() {
+            document.getElementById('withdrawModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close withdraw modal
+        function closeWithdrawModal(event) {
+            if (event && event.target.id !== 'withdrawModal') return;
+            document.getElementById('withdrawModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Select withdraw method
+        function selectWithdrawMethod(element, method) {
+            document.querySelectorAll('#withdrawModal .payment-method').forEach(item => {
+                item.classList.remove('active');
+            });
+            element.classList.add('active');
+            element.querySelector('input[type="radio"]').checked = true;
+
+            // Update wallet address display
+            document.getElementById('withdrawCryptoName').textContent = cryptoNames[method];
+            document.getElementById('withdrawAddressDisplay').textContent = walletAddresses[method];
+        }
+
+        // Copy withdraw address
+        function copyWithdrawAddress() {
+            const address = document.getElementById('withdrawAddressDisplay').textContent;
+            navigator.clipboard.writeText(address).then(() => {
+                alert('Address copied to clipboard!');
+            }).catch(() => {
+                alert('Failed to copy address');
+            });
+        }
+
+        // Update withdraw fee breakdown
+        function updateWithdrawFeeBreakdown() {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value) || 0;
+            const processingFee = amount * 0.03; // 3% fee
+            const receive = amount - processingFee;
+
+            document.getElementById('feeWithdrawAmount').textContent = `$${amount.toFixed(2)}`;
+            document.getElementById('feeWithdrawProcessing').textContent = `$${processingFee.toFixed(2)}`;
+            document.getElementById('feeWithdrawReceive').textContent = `$${receive.toFixed(2)}`;
+        }
+
+        // Submit withdraw
+        function submitWithdraw() {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const withdrawMethod = document.querySelector('input[name="withdraw"]:checked').value;
+
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+
+            closeWithdrawModal();
+            showConfirmationPopup('withdraw');
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Show confirmation popup
+        function showConfirmationPopup(type = 'deposit') {
+            document.getElementById('confirmationOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close confirmation popup
+        function closeConfirmationPopup() {
+            document.getElementById('confirmationOverlay').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Load user balance
+        async function loadBalance() {
+            const token = getAuthToken();
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_URL}/wallet/total-balance`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const balanceElement = document.querySelector('.balance-card-amount');
+                    if (balanceElement) {
+                        balanceElement.textContent = `$${data.totalBalance.toFixed(2)}`;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading balance:', error);
+            }
+        }
+
+        // Load user data on page load
+        window.addEventListener('load', async () => {
+            // Load crypto addresses from backend FIRST
+            await loadCryptoAddresses();
+            
+            // Then load user data
+            loadUserData();
+            loadBalance();
+        });
+
+        // Auto-refresh balance every 30 seconds
+        setInterval(loadBalance, 30000);
+    </script>
+</body>
+</html>

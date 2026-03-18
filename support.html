@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support - TeslasCap</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #f5f5f5;
+            color: #171a20;
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #fff;
+            padding: 24px;
+            border-right: 1px solid #e5e5e5;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #e31937;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .user-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .user-info p {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #666;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: #f5f5f5;
+            color: #e31937;
+        }
+
+        .nav-item.active {
+            background: #ffe5e9;
+            color: #e31937;
+            font-weight: 600;
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid #e5e5e5;
+            padding-top: 16px;
+            margin-top: auto;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #fff;
+            color: #e31937;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #ffe5e9;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 32px;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, #8b1428 0%, #c41e3a 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+            box-shadow: 0 8px 24px rgba(227, 25, 55, 0.15);
+        }
+
+        .header-section h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .header-section p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .support-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .support-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .support-card:hover {
+            box-shadow: 0 8px 24px rgba(227, 25, 55, 0.1);
+            transform: translateY(-4px);
+        }
+
+        .support-icon {
+            width: 64px;
+            height: 64px;
+            background: #ffe5e9;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .support-icon svg {
+            width: 32px;
+            height: 32px;
+            color: #e31937;
+        }
+
+        .support-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .support-card p {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 12px;
+        }
+
+        .support-link {
+            color: #e31937;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .support-link:hover {
+            text-decoration: underline;
+        }
+
+        .content-section {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #171a20;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #e31937;
+            box-shadow: 0 0 0 3px rgba(227, 25, 55, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 32px;
+            background: #e31937;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #c41e3a;
+            transform: translateY(-2px);
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #e5e5e5;
+            padding: 20px 0;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: #171a20;
+            user-select: none;
+        }
+
+        .faq-question:hover {
+            color: #e31937;
+        }
+
+        .faq-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .faq-answer {
+            display: none;
+            margin-top: 12px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .faq-answer.active {
+            display: block;
+        }
+
+        .faq-icon.active {
+            transform: rotate(180deg);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+                padding: 24px;
+            }
+
+            .support-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .header-section {
+                padding: 24px;
+            }
+
+            .header-section h1 {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid #e5e5e5;
+                padding: 16px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+
+            .support-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-section {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .header-section h1 {
+                font-size: 20px;
+            }
+
+            .sidebar-nav {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                gap: 8px;
+            }
+
+            .nav-item {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .content-section {
+                padding: 16px;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content-section {
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Enhanced Responsive Design - Mobile */
+        @media (max-width: 480px) {
+            .sidebar {
+                flex-wrap: wrap;
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .sidebar-header {
+                width: 100%;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #e5e5e5;
+            }
+
+            .user-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+
+            .user-info h4 {
+                font-size: 12px;
+            }
+
+            .user-info p {
+                font-size: 10px;
+            }
+
+            .sidebar-nav {
+                width: 100%;
+            }
+
+            .nav-item {
+                padding: 6px 8px;
+                font-size: 10px;
+            }
+
+            .main-content {
+                padding: 12px;
+            }
+
+            .header-section {
+                padding: 12px;
+                margin-bottom: 16px;
+            }
+
+            .header-section h1 {
+                font-size: 18px;
+            }
+
+            .section-title {
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+
+            .support-grid {
+                gap: 12px;
+            }
+
+            .support-card {
+                padding: 16px;
+            }
+
+            .support-icon {
+                width: 48px;
+                height: 48px;
+                margin: 0 auto 12px;
+            }
+
+            .support-icon svg {
+                width: 24px;
+                height: 24px;
+            }
+
+            .support-card h3 {
+                font-size: 14px;
+            }
+
+            .support-card p {
+                font-size: 12px;
+            }
+
+            .support-link {
+                font-size: 12px;
+            }
+
+            .content-section {
+                padding: 12px;
+                margin-bottom: 16px;
+            }
+
+            .form-group {
+                margin-bottom: 16px;
+            }
+
+            .form-group label {
+                font-size: 13px;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .form-row {
+                gap: 12px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 13px;
+            }
+
+            .faq-item {
+                padding: 16px 0;
+            }
+
+            .faq-question {
+                font-size: 14px;
+            }
+
+            .faq-answer {
+                font-size: 13px;
+                margin-top: 10px;
+            }
+        }
+    </style>
+    <script src="page-transition-loader.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+               <div class="user-avatar" id="userInitial">J</div>
+<div class="user-info">
+    <h4 id="userName">Loading...</h4>
+    <p id="userEmail">user@example.com</p>
+</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='3' y='3' width='7' height='7'/%3E%3Crect x='14' y='3' width='7' height='7'/%3E%3Crect x='14' y='14' width='7' height='7'/%3E%3Crect x='3' y='14' width='7' height='7'/%3E%3C/svg%3E#icon"/></svg>
+                    Dashboard
+                </a>
+                <a href="wallet.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='1' y='4' width='22' height='16' rx='2'/%3E%3Cpath d='M1 10h22'/%3E%3C/svg%3E#icon"/></svg>
+                    Wallet
+                </a>
+                <a href="investments.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M12 2v20M2 12h20'/%3E%3C/svg%3E#icon"/></svg>
+                    Investments
+                </a>
+                <a href="stocks.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='23 6 13.5 15.5 8.5 10.5 1 17'/%3E%3Cpolyline points='17 6 23 6 23 12'/%3E%3C/svg%3E#icon"/></svg>
+                    Stocks
+                </a>
+                <a href="portfolio.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 6v6l4 2'/%3E%3C/svg%3E#icon"/></svg>
+                    Portfolio
+                </a>
+                <a href="investment-dashboard.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cline x1='12' y1='5' x2='12' y2='19'/%3E%3Cline x1='5' y1='12' x2='19' y2='12'/%3E%3C/svg%3E#icon"/></svg>
+                    Investment Dashboard
+                </a>
+                <a href="inventory.html" class="nav-item">
+
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='2' y='7' width='20' height='14' rx='2' ry='2'/%3E%3Cpath d='M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16'/%3E%3C/svg%3E#icon"/></svg>
+                    Inventory
+                </a>
+                <a href="vip-membership.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M6 9L12 2l6 7M5 9h14v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V9z'/%3E%3C/svg%3E#icon"/></svg>
+                    VIP Membership
+                </a>
+                <a href="giveaways.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='3' y='8' width='18' height='12' rx='2'/%3E%3Cpath d='M7 8V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2'/%3E%3Cline x1='12' y1='11' x2='12' y2='17'/%3E%3C/svg%3E#icon"/></svg>
+                    Giveaways
+                </a>
+                <a href="orders.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='9' cy='21' r='1'/%3E%3Ccircle cx='20' cy='21' r='1'/%3E%3Cpath d='M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6'/%3E%3C/svg%3E#icon"/></svg>
+                    Orders
+                </a>
+                <a href="account.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E#icon"/></svg>
+                    Account
+                </a>
+                <a href="kyc-verification.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='3' y='11' width='18' height='11' rx='2' ry='2'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'/%3E%3C/svg%3E#icon"/></svg>
+                    KYC Verification
+                </a>
+                <a href="support.html" class="nav-item active">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/%3E%3C/svg%3E#icon"/></svg>
+                    Support
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logout()">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'/%3E%3Cpolyline points='16 17 21 12 16 7'/%3E%3Cline x1='21' y1='12' x2='9' y2='12'/%3E%3C/svg%3E#icon"/></svg>
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <div class="header-section">
+                <h1>Support Center</h1>
+                <p>Get help with your account, investments, and more.</p>
+            </div>
+
+            <!-- Support Options -->
+            <div class="section-title">How Can We Help?</div>
+            <div class="support-grid">
+                <div class="support-card">
+                    <div class="support-icon">
+                        <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/%3E%3C/svg%3E#icon"/></svg>
+                    </div>
+                    <h3>Live Chat</h3>
+                    <p>Chat with our support team in real-time</p>
+                    <a href="#" class="support-link">Start Chat →</a>
+                </div>
+
+                <div class="support-card">
+                    <div class="support-icon">
+                        <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='2' y='4' width='20' height='16' rx='2'/%3E%3Cpath d='M7 11h10M7 15h10'/%3E%3C/svg%3E#icon"/></svg>
+                    </div>
+                    <h3>Email Support</h3>
+                    <p>Send us an email and we'll respond within 24 hours</p>
+                    <a href="mailto:support@teslascap.com" class="support-link">support@teslascap.com</a>
+                </div>
+
+                <div class="support-card">
+                    <div class="support-icon">
+                        <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z'/%3E%3C/svg%3E#icon"/></svg>
+                    </div>
+                    <h3>Phone Support</h3>
+                    <p>Call our support team during business hours</p>
+                    <a href="tel:+1-800-TESLASCAP" class="support-link">+1-800-TESLASCAP</a>
+                </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="section-title">Send Us a Message</div>
+            <div class="content-section">
+                <form onsubmit="submitForm(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Name *</label>
+                            <input type="text" placeholder="Your name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email *</label>
+                            <input type="email" placeholder="your@email.com" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Subject *</label>
+                        <select required>
+                            <option value="">Select a subject</option>
+                            <option>Account Issues</option>
+                            <option>Investment Questions</option>
+                            <option>Wallet & Transfers</option>
+                            <option>KYC Verification</option>
+                            <option>Technical Issues</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Message *</label>
+                        <textarea placeholder="Please describe your issue in detail..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" required> I agree to the terms and privacy policy
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn">Send Message</button>
+                </form>
+            </div>
+
+            <!-- FAQ -->
+            <div class="section-title">Frequently Asked Questions</div>
+            <div class="content-section">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>How do I create an account?</span>
+                        <div class="faq-icon">
+                            <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E#icon"/></svg>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Creating an account is easy! Click on the "Sign Up" button on our homepage, enter your email address, create a strong password, and verify your email. You'll then be able to complete your KYC verification to unlock full features.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>What is KYC verification and why do I need it?</span>
+                        <div class="faq-icon">
+                            <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E#icon"/></svg>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <p>KYC (Know Your Customer) verification is a regulatory requirement that helps us comply with financial laws and prevent fraud. We'll need to verify your identity using a government-issued ID and proof of address. This typically takes 24-48 hours.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>How do I deposit funds into my wallet?</span>
+                        <div class="faq-icon">
+                            <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E#icon"/></svg>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <p>You can deposit funds through multiple methods: bank transfer, credit/debit card, or cryptocurrency. Go to your Wallet page, click "Deposit", select your preferred method, and follow the instructions. Deposits typically appear within 1-3 business days.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>What are the fees for trading?</span>
+                        <div class="faq-icon">
+                            <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E#icon"/></svg>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Our trading fees vary based on your VIP membership level. Standard users pay 2% per trade, while VIP members receive discounts up to 15% cashback. Check your VIP Membership page for detailed fee structures.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>How do I withdraw my funds?</span>
+                        <div class="faq-icon">
+                            <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E#icon"/></svg>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <p>To withdraw funds, go to your Wallet page and click "Withdraw". Select your preferred withdrawal method (bank transfer or cryptocurrency), enter the amount, and confirm. Withdrawals are processed within 2-5 business days depending on the method.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>Is my account secure?</span>
+                        <div class="faq-icon">
+                            <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E#icon"/></svg>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes! We use industry-leading encryption, two-factor authentication, and cold storage for cryptocurrencies. We recommend enabling 2FA in your Account Settings for additional security. Your funds are protected by our insurance policy.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function toggleFAQ(element) {
+            const answer = element.nextElementSibling;
+            const icon = element.querySelector('.faq-icon');
+            
+            answer.classList.toggle('active');
+            icon.classList.toggle('active');
+        }
+
+        function submitForm(e) {
+            e.preventDefault();
+            alert('Thank you for your message! We will get back to you within 24 hours.');
+            e.target.reset();
+        }
+
+
+        lucide.createIcons();
+    </script>
+    <script>const API_URL='http://localhost:5001/api';function checkAuth(){const token=localStorage.getItem('authToken');if(!token){window.location.href='login.html';return false;}return token;}async function loadUserData(){const token=checkAuth();if(!token)return;try{const response=await fetch(`${API_URL}/auth/profile`,{headers:{'Authorization':`Bearer ${token}`}});const data=await response.json();if(data.success){const user=data.user;const firstName=user.firstName;const lastName=user.lastName;const initials=(firstName.charAt(0)+lastName.charAt(0)).toUpperCase();document.getElementById('userInitial').textContent=initials;document.getElementById('userName').textContent=`${firstName} ${lastName}`;document.getElementById('userEmail').textContent=user.email;const loadingSpinner=document.querySelector('.loading-spinner');if(loadingSpinner){loadingSpinner.style.display='none';}}else{window.location.href='login.html';}}catch(error){console.error('Error loading user data:',error);}}function logout(){if(confirm('Are you sure you want to logout?')){localStorage.removeItem('authToken');localStorage.removeItem('user');window.location.href='login.html';}}window.addEventListener('load',loadUserData);
+    </script>
+       <script src="user-data.js"></script>
+</body>
+</html>

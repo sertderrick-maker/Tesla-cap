@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIP Membership - TeslasCap</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #f5f5f5;
+            color: #171a20;
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #fff;
+            padding: 24px;
+            border-right: 1px solid #e5e5e5;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #e31937;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .user-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .user-info p {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #666;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: #f5f5f5;
+            color: #e31937;
+        }
+
+        .nav-item.active {
+            background: #ffe5e9;
+            color: #e31937;
+            font-weight: 600;
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid #e5e5e5;
+            padding-top: 16px;
+            margin-top: auto;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #fff;
+            color: #e31937;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #ffe5e9;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 32px;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, #8b1428 0%, #c41e3a 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+            box-shadow: 0 8px 24px rgba(227, 25, 55, 0.15);
+        }
+
+        .header-section h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .header-section p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .vip-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .vip-card {
+            background: white;
+            border: 2px solid #e5e5e5;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .vip-card:hover {
+            box-shadow: 0 8px 24px rgba(227, 25, 55, 0.1);
+            transform: translateY(-4px);
+            border-color: #e31937;
+        }
+
+        .vip-card.featured {
+            border-color: #e31937;
+            box-shadow: 0 8px 24px rgba(227, 25, 55, 0.15);
+            transform: scale(1.05);
+        }
+
+        .vip-header {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .vip-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #e31937;
+            color: white;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .vip-badge.silver {
+            background: #c0c0c0;
+        }
+
+        .vip-badge.gold {
+            background: #ffd700;
+            color: #171a20;
+        }
+
+        .vip-badge.platinum {
+            background: #e5e4e2;
+            color: #171a20;
+        }
+
+        .vip-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .vip-price {
+            font-size: 28px;
+            font-weight: 700;
+            font-family: 'DM Mono', monospace;
+            margin-bottom: 4px;
+        }
+
+        .vip-price-period {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .vip-body {
+            padding: 24px;
+            flex: 1;
+        }
+
+        .vip-features {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .vip-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .vip-feature-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffe5e9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .vip-feature-icon svg {
+            width: 12px;
+            height: 12px;
+            color: #e31937;
+        }
+
+        .vip-footer {
+            padding: 24px;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px 16px;
+            background: #e31937;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #c41e3a;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #171a20;
+            border: 1px solid #e5e5e5;
+        }
+
+        .btn-secondary:hover {
+            background: #ffe5e9;
+            border-color: #e31937;
+        }
+
+        .btn-disabled {
+            background: #e5e5e5;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .btn-disabled:hover {
+            background: #e5e5e5;
+            transform: none;
+        }
+
+        .comparison-section {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 32px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e5e5;
+            font-size: 13px;
+        }
+
+        .comparison-table th {
+            background: #f9f9f9;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .comparison-table tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        .check-icon {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .x-icon {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+                padding: 24px;
+            }
+
+            .vip-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .vip-card.featured {
+                transform: scale(1);
+            }
+
+            .header-section {
+                padding: 24px;
+            }
+
+            .header-section h1 {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid #e5e5e5;
+                padding: 16px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+
+            .vip-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-section {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .header-section h1 {
+                font-size: 20px;
+            }
+
+            .sidebar-nav {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                gap: 8px;
+            }
+
+            .nav-item {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 8px;
+                font-size: 12px;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .vip-card,
+        .comparison-section {
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Enhanced Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+                padding: 24px;
+            }
+
+            .vip-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .vip-card.featured {
+                transform: scale(1);
+            }
+
+            .header-section {
+                padding: 24px;
+            }
+
+            .header-section h1 {
+                font-size: 24px;
+            }
+
+            .section-title {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid #e5e5e5;
+                padding: 12px;
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                overflow-x: auto;
+            }
+
+            .sidebar-header {
+                flex-shrink: 0;
+                margin-bottom: 0;
+                padding-bottom: 0;
+                border-bottom: none;
+            }
+
+            .user-info h4 {
+                font-size: 13px;
+            }
+
+            .user-info p {
+                font-size: 11px;
+            }
+
+            .sidebar-nav {
+                display: flex;
+                gap: 4px;
+                flex: 1;
+                overflow-x: auto;
+                margin-bottom: 0;
+                padding-bottom: 8px;
+            }
+
+            .nav-item {
+                padding: 8px 10px;
+                font-size: 11px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            .nav-item svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            .sidebar-footer {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+
+            .header-section {
+                padding: 16px;
+                margin-bottom: 20px;
+            }
+
+            .header-section h1 {
+                font-size: 20px;
+                margin-bottom: 4px;
+            }
+
+            .header-section p {
+                font-size: 14px;
+            }
+
+            .section-title {
+                font-size: 16px;
+                margin-bottom: 16px;
+            }
+
+            .vip-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                margin-bottom: 24px;
+            }
+
+            .vip-card {
+                border-radius: 8px;
+            }
+
+            .vip-card.featured {
+                transform: scale(1);
+            }
+
+            .vip-header {
+                padding: 16px;
+            }
+
+            .vip-name {
+                font-size: 18px;
+            }
+
+            .vip-price {
+                font-size: 24px;
+            }
+
+            .vip-price-period {
+                font-size: 11px;
+            }
+
+            .vip-body {
+                padding: 16px;
+            }
+
+            .vip-features {
+                gap: 10px;
+                margin-bottom: 16px;
+            }
+
+            .vip-feature {
+                font-size: 12px;
+            }
+
+            .vip-footer {
+                padding: 16px;
+            }
+
+            .btn {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            .comparison-section {
+                padding: 16px;
+                margin-bottom: 20px;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 10px 8px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                flex-wrap: wrap;
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .sidebar-header {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #e5e5e5;
+            }
+
+            .user-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+
+            .user-info h4 {
+                font-size: 12px;
+            }
+
+            .user-info p {
+                font-size: 10px;
+            }
+
+            .sidebar-nav {
+                width: 100%;
+                gap: 2px;
+                padding-bottom: 0;
+            }
+
+            .nav-item {
+                padding: 6px 8px;
+                font-size: 10px;
+                gap: 6px;
+            }
+
+            .nav-item svg {
+                width: 14px;
+                height: 14px;
+            }
+
+            .main-content {
+                padding: 12px;
+            }
+
+            .header-section {
+                padding: 12px;
+                margin-bottom: 16px;
+            }
+
+            .header-section h1 {
+                font-size: 18px;
+            }
+
+            .header-section p {
+                font-size: 12px;
+            }
+
+            .section-title {
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+
+            .vip-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                margin-bottom: 16px;
+            }
+
+            .vip-card {
+                border-radius: 8px;
+            }
+
+            .vip-card.featured {
+                transform: scale(1);
+            }
+
+            .vip-header {
+                padding: 12px;
+                text-align: center;
+            }
+
+            .vip-badge {
+                padding: 3px 10px;
+                font-size: 10px;
+                margin-bottom: 8px;
+            }
+
+            .vip-name {
+                font-size: 16px;
+                margin-bottom: 6px;
+            }
+
+            .vip-price {
+                font-size: 20px;
+                margin-bottom: 2px;
+            }
+
+            .vip-price-period {
+                font-size: 10px;
+            }
+
+            .vip-body {
+                padding: 12px;
+            }
+
+            .vip-features {
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+
+            .vip-feature {
+                font-size: 11px;
+            }
+
+            .vip-feature-icon {
+                width: 18px;
+                height: 18px;
+            }
+
+            .vip-feature-icon svg {
+                width: 10px;
+                height: 10px;
+            }
+
+            .vip-footer {
+                padding: 12px;
+            }
+
+            .btn {
+                padding: 10px 12px;
+                font-size: 11px;
+            }
+
+            .comparison-section {
+                padding: 12px;
+                margin-bottom: 16px;
+            }
+
+            .comparison-table {
+                margin-top: 12px;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 8px 6px;
+                font-size: 11px;
+            }
+
+            .comparison-table th {
+                font-size: 10px;
+            }
+        }
+    </style>
+    <script src="page-transition-loader.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-avatar" id="userInitial">J</div>
+<div class="user-info">
+    <h4 id="userName">Loading...</h4>
+    <p id="userEmail">user@example.com</p>
+</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='3' y='3' width='7' height='7'/%3E%3Crect x='14' y='3' width='7' height='7'/%3E%3Crect x='14' y='14' width='7' height='7'/%3E%3Crect x='3' y='14' width='7' height='7'/%3E%3C/svg%3E#icon"/></svg>
+                    Dashboard
+                </a>
+                <a href="wallet.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='1' y='4' width='22' height='16' rx='2'/%3E%3Cpath d='M1 10h22'/%3E%3C/svg%3E#icon"/></svg>
+                    Wallet
+                </a>
+                <a href="investments.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M12 2v20M2 12h20'/%3E%3C/svg%3E#icon"/></svg>
+                    Investments
+                </a>
+                <a href="stocks.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='23 6 13.5 15.5 8.5 10.5 1 17'/%3E%3Cpolyline points='17 6 23 6 23 12'/%3E%3C/svg%3E#icon"/></svg>
+                    Stocks
+                </a>
+                <a href="portfolio.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 6v6l4 2'/%3E%3C/svg%3E#icon"/></svg>
+                    Portfolio
+                </a>
+                <a href="investment-dashboard.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cline x1='12' y1='5' x2='12' y2='19'/%3E%3Cline x1='5' y1='12' x2='19' y2='12'/%3E%3C/svg%3E#icon"/></svg>
+                    Investment Dashboard
+                </a>
+                <a href="inventory.html" class="nav-item">
+
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='2' y='7' width='20' height='14' rx='2' ry='2'/%3E%3Cpath d='M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16'/%3E%3C/svg%3E#icon"/></svg>
+                    Inventory
+                </a>
+                <a href="vip-membership.html" class="nav-item active">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M6 9L12 2l6 7M5 9h14v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V9z'/%3E%3C/svg%3E#icon"/></svg>
+                    VIP Membership
+                </a>
+                <a href="giveaways.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='3' y='8' width='18' height='12' rx='2'/%3E%3Cpath d='M7 8V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2'/%3E%3Cline x1='12' y1='11' x2='12' y2='17'/%3E%3C/svg%3E#icon"/></svg>
+                    Giveaways
+                </a>
+                <a href="orders.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='9' cy='21' r='1'/%3E%3Ccircle cx='20' cy='21' r='1'/%3E%3Cpath d='M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6'/%3E%3C/svg%3E#icon"/></svg>
+                    Orders
+                </a>
+                <a href="account.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E#icon"/></svg>
+                    Account
+                </a>
+                <a href="kyc-verification.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='3' y='11' width='18' height='11' rx='2' ry='2'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'/%3E%3C/svg%3E#icon"/></svg>
+                    KYC Verification
+                </a>
+                <a href="support.html" class="nav-item">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/%3E%3C/svg%3E#icon"/></svg>
+                    Support
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logout()">
+                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'/%3E%3Cpolyline points='16 17 21 12 16 7'/%3E%3Cline x1='21' y1='12' x2='9' y2='12'/%3E%3C/svg%3E#icon"/></svg>
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <div class="header-section">
+                <h1>VIP Membership</h1>
+                <p>Unlock exclusive benefits and premium features with our VIP tiers.</p>
+            </div>
+
+            <!-- VIP Cards -->
+            <div class="section-title">Choose Your Tier</div>
+            <div class="vip-grid">
+                <!-- Bronze -->
+                <div class="vip-card">
+                    <div class="vip-header">
+                        <div class="vip-badge">BRONZE</div>
+                        <h3 class="vip-name">Bronze</h3>
+                        <div class="vip-price">$99</div>
+                        <div class="vip-price-period">per year</div>
+                    </div>
+                    <div class="vip-body">
+                        <div class="vip-features">
+                            <div class="vip-feature">
+                                <div class="vip-feature-icon">
+                                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E#icon"/></svg>
+                                </div>
+                                <span>Priority customer support</span>
+                            </div>
+                            <div class="vip-feature">
+                                <div class="vip-feature-icon">
+                                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E#icon"/></svg>
+                                </div>
+                                <span>2% cashback on trades</span>
+                            </div>
+                            <div class="vip-feature">
+                                <div class="vip-feature-icon">
+                                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E#icon"/></svg>
+                                </div>
+                                <span>Access to exclusive events</span>
+                            </div>
+                            <div class="vip-feature">
+                                <div class="vip-feature-icon">
+                                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E#icon"/></svg>
+                                </div>
+                                <span>Monthly market reports</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="vip-footer">
+                        <button class="btn" onclick="upgradeTier('Bronze', 99)">Upgrade Now</button>
+                    </div>
+                </div>
+
+                <!-- Silver -->
+                <div class="vip-card">
+                    <div class="vip-header">
+                        <div class="vip-badge silver">SILVER</div>
+                        <h3 class="vip-name">Silver</h3>
+                        <div class="vip-price">$249</div>
+                        <div class="vip-price-period">per year</div>
+                    </div>
+                    <div class="vip-body">
+                        <div class="vip-features">
+                            <div class="vip-feature">
+                                <div class="vip-feature-icon">
+                                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E#icon"/></svg>
+                                </div>
+                                <span>24/7 VIP support</span>
+                            </div>
+                            <div class="vip-feature">
+                                <div class="vip-feature-icon">
+                                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E#icon"/></svg>
+                                </div>
+                                <span>5% cashback on trades</span>
+                            </div>
+                            <div class="vip-feature">
+                                <div class="vip-feature-icon">
+                                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E#icon"/></svg>
+                                </div>
+                                <span>Advanced analytics tools</span>
+                            </div>
+                            <div class="vip-feature">
+                                <div class="vip-feature-icon">
+                                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E#icon"/></svg>
+                                </div>
+                                <span>Weekly webinars</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="vip-footer">
+                        <button class="btn" onclick="upgradeTier('Silver', 249)">Upgrade Now</button>
+                    </div>
+                </div>
+
+                <!-- Gold -->
+                <div class="vip-card featured">
+                    <div class="vip-header">
+                        <div class="vip-badge gold">GOLD</div>
+                        <h3 class="vip-name">Gold</h3>
+                        <div class="vip-price">$499</div>
+                        <div class="vip-price-period">per year</div>
+                    </div>
+                    <div class="vip-body">
+                        <div class="vip-features">
+                            <div class="vip-feature">
+                                <div class="vip-feature-icon">
+                                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E#icon"/></svg>
+                                </div>
+                                <span>Dedicated account manager</span>
+                            </div>
+                            <div class="vip-feature">
+                                <div class="vip-feature-icon">
+                                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E#icon"/></svg>
+                                </div>
+                                <span>10% cashback on trades</span>
+                            </div>
+                            <div class="vip-feature">
+                                <div class="vip-feature-icon">
+                                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E#icon"/></svg>
+                                </div>
+                                <span>AI-powered insights</span>
+                            </div>
+                            <div class="vip-feature">
+                                <div class="vip-feature-icon">
+                                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E#icon"/></svg>
+                                </div>
+                                <span>Exclusive networking events</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="vip-footer">
+                        <button class="btn" onclick="upgradeTier('Gold', 499)">Upgrade Now</button>
+                    </div>
+                </div>
+
+                <!-- Platinum -->
+                <div class="vip-card">
+                    <div class="vip-header">
+                        <div class="vip-badge platinum">PLATINUM</div>
+                        <h3 class="vip-name">Platinum</h3>
+                        <div class="vip-price">$999</div>
+                        <div class="vip-price-period">per year</div>
+                    </div>
+                    <div class="vip-body">
+                        <div class="vip-features">
+                            <div class="vip-feature">
+                                <div class="vip-feature-icon">
+                                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E#icon"/></svg>
+                                </div>
+                                <span>Personal wealth advisor</span>
+                            </div>
+                            <div class="vip-feature">
+                                <div class="vip-feature-icon">
+                                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E#icon"/></svg>
+                                </div>
+                                <span>15% cashback on trades</span>
+                            </div>
+                            <div class="vip-feature">
+                                <div class="vip-feature-icon">
+                                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E#icon"/></svg>
+                                </div>
+                                <span>Priority investment access</span>
+                            </div>
+                            <div class="vip-feature">
+                                <div class="vip-feature-icon">
+                                    <svg><use href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E#icon"/></svg>
+                                </div>
+                                <span>Concierge service</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="vip-footer">
+                        <button class="btn" onclick="upgradeTier('Platinum', 999)">Upgrade Now</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparison -->
+            <div class="section-title">Feature Comparison</div>
+            <div class="comparison-section">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Bronze</th>
+                            <th>Silver</th>
+                            <th>Gold</th>
+                            <th>Platinum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Cashback Rate</td>
+                            <td>2%</td>
+                            <td>5%</td>
+                            <td>10%</td>
+                            <td>15%</td>
+                        </tr>
+                        <tr>
+                            <td>Customer Support</td>
+                            <td>Standard</td>
+                            <td>24/7 VIP</td>
+                            <td>Dedicated Manager</td>
+                            <td>Personal Advisor</td>
+                        </tr>
+                        <tr>
+                            <td>Analytics Tools</td>
+                            <td><span class="x-icon">✗</span></td>
+                            <td><span class="check-icon">✓</span></td>
+                            <td><span class="check-icon">✓</span></td>
+                            <td><span class="check-icon">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td>AI Insights</td>
+                            <td><span class="x-icon">✗</span></td>
+                            <td><span class="x-icon">✗</span></td>
+                            <td><span class="check-icon">✓</span></td>
+                            <td><span class="check-icon">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td>Exclusive Events</td>
+                            <td><span class="x-icon">✗</span></td>
+                            <td><span class="x-icon">✗</span></td>
+                            <td><span class="check-icon">✓</span></td>
+                            <td><span class="check-icon">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td>Priority Investment Access</td>
+                            <td><span class="x-icon">✗</span></td>
+                            <td><span class="x-icon">✗</span></td>
+                            <td><span class="x-icon">✗</span></td>
+                            <td><span class="check-icon">✓</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function upgradeTier(tierName, amount) {
+            // Redirect to wallet page with VIP tier amount as URL parameter
+            window.location.href = `wallet.html?vipAmount=${amount}&vipTier=${encodeURIComponent(tierName)}`;
+        }
+
+
+        lucide.createIcons();
+
+        const API_URL = 'http://localhost:5001/api';
+
+        function checkAuth() {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            return token;
+        }
+
+        async function loadUserData() {
+            const token = checkAuth();
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_URL}/auth/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    const user = data.user;
+                    const firstName = user.firstName;
+                    const lastName = user.lastName;
+                    const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+
+                    document.getElementById('userInitial').textContent = initials;
+                    document.getElementById('userName').textContent = `${firstName} ${lastName}`;
+                    document.getElementById('userEmail').textContent = user.email;
+                } else {
+                    window.location.href = 'login.html';
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            }
+        }
+
+        window.addEventListener('load', loadUserData);
+    </script>
+       <script src="user-data.js"></script>
+</body>
+</html>

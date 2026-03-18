@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeslasCap Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-box h1 {
+            text-align: center;
+            color: #c41e3a;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #c41e3a;
+            box-shadow: 0 0 5px rgba(196, 30, 58, 0.3);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #c41e3a;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .login-btn:hover {
+            background: #a01729;
+        }
+
+        .error-message {
+            color: #c41e3a;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        /* Admin Dashboard */
+        .admin-dashboard {
+            display: none;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #c41e3a 0%, #8b1428 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-header h1 {
+            font-size: 24px;
+        }
+
+        .admin-logout {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid white;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .admin-logout:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: calc(100vh - 70px);
+        }
+
+        .admin-sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .admin-sidebar a {
+            display: block;
+            padding: 15px 20px;
+            color: white;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .admin-sidebar a:hover,
+        .admin-sidebar a.active {
+            background: rgba(196, 30, 58, 0.2);
+            border-left-color: #c41e3a;
+        }
+
+        .admin-content {
+            flex: 1;
+            padding: 30px;
+            background: #f5f5f5;
+            overflow-y: auto;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .stat-card .value {
+            color: #c41e3a;
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead {
+            background: #f9f9f9;
+            border-bottom: 2px solid #eee;
+        }
+
+        table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+        }
+
+        table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        table tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-confirm {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-confirm:hover {
+            background: #218838;
+        }
+
+        .btn-reject {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #c82333;
+        }
+
+        .btn-edit {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #0056b3;
+        }
+
+        .form-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .form-section h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #c41e3a;
+            box-shadow: 0 0 5px rgba(196, 30, 58, 0.3);
+        }
+
+        .btn-primary {
+            background: #c41e3a;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #a01729;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .admin-container {
+                flex-direction: column;
+            }
+
+            .admin-sidebar {
+                width: 100%;
+                display: flex;
+                overflow-x: auto;
+                padding: 10px 0;
+            }
+
+            .admin-sidebar a {
+                white-space: nowrap;
+                padding: 10px 15px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            table th,
+            table td {
+                padding: 10px;
+            }
+        }
+    </style>
+    <script src="page-transition-loader.js"></script>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-box">
+            <h1>Admin Login</h1>
+            <form id="loginForm" onsubmit="handleAdminLogin(event)">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="admin" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="login-btn">Login</button>
+                <div id="loginError" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="admin-dashboard">
+        <div class="admin-header">
+            <h1>TeslasCap Admin Panel</h1>
+            <button class="admin-logout" onclick="adminLogout()">Logout</button>
+        </div>
+
+        <div class="admin-container">
+            <div class="admin-sidebar">
+                <a onclick="showSection('dashboard')" class="active">📊 Dashboard</a>
+                <a onclick="showSection('deposits')">💰 Pending Deposits</a>
+                <a onclick="showSection('all-deposits')">📋 All Deposits</a>
+                <a onclick="showSection('crypto-addresses')">🔐 Crypto Addresses</a>
+                <a onclick="showSection('users')">👥 Users</a>
+                <a onclick="showSection('logs')">📝 Admin Logs</a>
+            </div>
+
+            <div class="admin-content">
+                <!-- Dashboard Section -->
+                <div id="dashboard" class="section active">
+                    <h2>Dashboard</h2>
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card">
+                            <h3>Total Users</h3>
+                            <div class="value" id="totalUsers">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Total Deposits</h3>
+                            <div class="value" id="totalDeposits">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Pending Deposits</h3>
+                            <div class="value" id="pendingDeposits">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Confirmed Deposits</h3>
+                            <div class="value" id="confirmedDeposits">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Total Amount</h3>
+                            <div class="value" id="totalAmount">$0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Deposits Section -->
+                <div id="deposits" class="section">
+                    <h2>Pending Deposits</h2>
+                    <div id="pendingMessage"></div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Email</th>
+                                    <th>Amount</th>
+                                    <th>Crypto</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pendingDepositsTable">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- All Deposits Section -->
+                <div id="all-deposits" class="section">
+                    <h2>All Deposits</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Email</th>
+                                    <th>Amount</th>
+                                    <th>Crypto</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allDepositsTable">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Crypto Addresses Section -->
+                <div id="crypto-addresses" class="section">
+                    <h2>Crypto Addresses</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Cryptocurrency</th>
+                                    <th>Symbol</th>
+                                    <th>Address</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cryptoAddressesTable">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Users Section -->
+                <div id="users" class="section">
+                    <h2>All Users</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Total Deposits</th>
+                                    <th>Total Amount</th>
+                                    <th>Joined</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTable">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Admin Logs Section -->
+                <div id="logs" class="section">
+                    <h2>Admin Logs</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Admin</th>
+                                    <th>Action</th>
+                                    <th>Details</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsTable">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Deposit Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Confirm Deposit</h2>
+                <button class="modal-close" onclick="closeModal('confirmModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Transaction Hash (Optional)</label>
+                    <input type="text" id="txHash" placeholder="Enter transaction hash">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-primary" onclick="confirmDeposit()">Confirm</button>
+                    <button class="btn-primary" style="background: #999;" onclick="closeModal('confirmModal')">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Address Modal -->
+    <div id="editAddressModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Crypto Address</h2>
+                <button class="modal-close" onclick="closeModal('editAddressModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Cryptocurrency</label>
+                    <input type="text" id="editCrypto" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Address</label>
+                    <input type="text" id="editAddress" placeholder="Enter new address">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-primary" onclick="updateAddress()">Update</button>
+                    <button class="btn-primary" style="background: #999;" onclick="closeModal('editAddressModal')">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5001/api';
+        let adminToken = localStorage.getItem('adminToken');
+        let currentDepositId = null;
+        let currentAddressId = null;
+
+        // Check if already logged in
+        window.addEventListener('load', () => {
+            if (adminToken) {
+                showDashboard();
+                loadDashboardStats();
+            }
+        });
+
+        // Admin Login
+        async function handleAdminLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch(`${API_URL}/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    adminToken = data.token;
+                    localStorage.setItem('adminToken', adminToken);
+                    showDashboard();
+                    loadDashboardStats();
+                } else {
+                    document.getElementById('loginError').textContent = data.message;
+                }
+            } catch (error) {
+                document.getElementById('loginError').textContent = 'Login failed. Please try again.';
+                console.error('Login error:', error);
+            }
+        }
+
+        // Show Dashboard
+        function showDashboard() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'block';
+        }
+
+        // Show Section
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+
+            document.querySelectorAll('.admin-sidebar a').forEach(a => a.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (sectionId === 'deposits') loadPendingDeposits();
+            if (sectionId === 'all-deposits') loadAllDeposits();
+            if (sectionId === 'crypto-addresses') loadCryptoAddresses();
+            if (sectionId === 'users') loadUsers();
+            if (sectionId === 'logs') loadLogs();
+        }
+
+        // Load Dashboard Stats
+        async function loadDashboardStats() {
+            try {
+                const response = await fetch(`${API_URL}/admin/stats`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('totalUsers').textContent = data.stats.totalUsers;
+                    document.getElementById('totalDeposits').textContent = data.stats.totalDeposits;
+                    document.getElementById('pendingDeposits').textContent = data.stats.pendingDeposits;
+                    document.getElementById('confirmedDeposits').textContent = data.stats.confirmedDeposits;
+                    document.getElementById('totalAmount').textContent = `$${data.stats.totalDepositAmount.toFixed(2)}`;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load Pending Deposits
+        async function loadPendingDeposits() {
+            try {
+                const response = await fetch(`${API_URL}/admin/pending-deposits`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+
+                const data = await response.json();
+                const table = document.getElementById('pendingDepositsTable');
+                table.innerHTML = '';
+
+                if (data.deposits.length === 0) {
+                    document.getElementById('pendingMessage').innerHTML = '<div class="success-message">No pending deposits</div>';
+                    return;
+                }
+
+                document.getElementById('pendingMessage').innerHTML = '';
+
+                data.deposits.forEach(deposit => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${deposit.firstName} ${deposit.lastName}</td>
+                        <td>${deposit.email}</td>
+                        <td>$${deposit.amount.toFixed(2)}</td>
+                        <td>${deposit.cryptocurrency}</td>
+                        <td>${new Date(deposit.createdAt).toLocaleDateString()}</td>
+                        <td>
+                            <button class="action-btn btn-confirm" onclick="openConfirmModal(${deposit.id})">Confirm</button>
+                            <button class="action-btn btn-reject" onclick="rejectDeposit(${deposit.id})">Reject</button>
+                        </td>
+                    `;
+                    table.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading deposits:', error);
+            }
+        }
+
+        // Load All Deposits
+        async function loadAllDeposits() {
+            try {
+                const response = await fetch(`${API_URL}/admin/all-deposits`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+
+                const data = await response.json();
+                const table = document.getElementById('allDepositsTable');
+                table.innerHTML = '';
+
+                data.deposits.forEach(deposit => {
+                    const row = document.createElement('tr');
+                    const statusClass = `status-${deposit.status}`;
+                    row.innerHTML = `
+                        <td>${deposit.firstName} ${deposit.lastName}</td>
+                        <td>${deposit.email}</td>
+                        <td>$${deposit.amount.toFixed(2)}</td>
+                        <td>${deposit.cryptocurrency}</td>
+                        <td><span class="status-badge ${statusClass}">${deposit.status.toUpperCase()}</span></td>
+                        <td>${new Date(deposit.createdAt).toLocaleDateString()}</td>
+                    `;
+                    table.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading deposits:', error);
+            }
+        }
+
+        // Load Crypto Addresses
+        async function loadCryptoAddresses() {
+            try {
+                const response = await fetch(`${API_URL}/admin/crypto-addresses`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+
+                const data = await response.json();
+                const table = document.getElementById('cryptoAddressesTable');
+                table.innerHTML = '';
+
+                data.addresses.forEach(address => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${address.cryptocurrency}</td>
+                        <td>${address.symbol}</td>
+                        <td style="word-break: break-all;">${address.address}</td>
+                        <td>
+                            <button class="action-btn btn-edit" onclick="openEditAddressModal(${address.id}, '${address.cryptocurrency}', '${address.address}')">Edit</button>
+                        </td>
+                    `;
+                    table.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading addresses:', error);
+            }
+        }
+
+        // Load Users
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${API_URL}/admin/users`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+
+                const data = await response.json();
+                const table = document.getElementById('usersTable');
+                table.innerHTML = '';
+
+                data.users.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.firstName} ${user.lastName}</td>
+                        <td>${user.email}</td>
+                        <td>${user.totalDeposits}</td>
+                        <td>$${user.totalDepositAmount.toFixed(2)}</td>
+                        <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                    `;
+                    table.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        // Load Admin Logs
+        async function loadLogs() {
+            try {
+                const response = await fetch(`${API_URL}/admin/logs`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+
+                const data = await response.json();
+                const table = document.getElementById('logsTable');
+                table.innerHTML = '';
+
+                data.logs.forEach(log => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${log.username}</td>
+                        <td>${log.action}</td>
+                        <td>${log.details}</td>
+                        <td>${new Date(log.createdAt).toLocaleDateString()}</td>
+                    `;
+                    table.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading logs:', error);
+            }
+        }
+
+        // Open Confirm Modal
+        function openConfirmModal(depositId) {
+            currentDepositId = depositId;
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        // Confirm Deposit
+        async function confirmDeposit() {
+            const txHash = document.getElementById('txHash').value;
+
+            try {
+                const response = await fetch(`${API_URL}/admin/confirm-deposit/${currentDepositId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ transactionHash: txHash })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Deposit confirmed successfully!');
+                    closeModal('confirmModal');
+                    loadPendingDeposits();
+                    loadDashboardStats();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                alert('Error confirming deposit');
+                console.error('Error:', error);
+            }
+        }
+
+        // Reject Deposit
+        async function rejectDeposit(depositId) {
+            if (!confirm('Are you sure you want to reject this deposit?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/admin/reject-deposit/${depositId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ reason: 'Rejected by admin' })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Deposit rejected successfully!');
+                    loadPendingDeposits();
+                    loadDashboardStats();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                alert('Error rejecting deposit');
+                console.error('Error:', error);
+            }
+        }
+
+        // Open Edit Address Modal
+        function openEditAddressModal(addressId, crypto, address) {
+            currentAddressId = addressId;
+            document.getElementById('editCrypto').value = crypto;
+            document.getElementById('editAddress').value = address;
+            document.getElementById('editAddressModal').classList.add('active');
+        }
+
+        // Update Address
+        async function updateAddress() {
+            const address = document.getElementById('editAddress').value;
+
+            if (!address) {
+                alert('Please enter an address');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/admin/crypto-address/${currentAddressId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ address })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Address updated successfully!');
+                    closeModal('editAddressModal');
+                    loadCryptoAddresses();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                alert('Error updating address');
+                console.error('Error:', error);
+            }
+        }
+
+        // Close Modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Admin Logout
+        function adminLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('adminToken');
+                adminToken = null;
+                document.getElementById('loginPage').style.display = 'flex';
+                document.getElementById('adminDashboard').style.display = 'none';
+                document.getElementById('loginForm').reset();
+            }
+        }
+    </script>
+</body>
+</html>
