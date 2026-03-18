@@ -1,49 +1,15 @@
-# Netlify Configuration File
-# This file configures how Netlify deploys your TeslasCap frontend
-
 [build]
-# Publish directory - where your HTML files are
-publish = "."
-# No build command needed for static HTML
-command = "echo 'Deploying TeslasCap frontend...'"
+  publish = "."
+  command = "echo 'No build required for static site'"
 
-# Redirect rules for single-page app behavior
 [[redirects]]
-from = "/*"
-to = "/index.html"
-status = 200
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
-# Cache settings
 [[headers]]
-[headers.values]
-Cache-Control = "public, max-age=3600"
-
-# Environment variables for production
-[context.production.environment]
-API_URL = "https://your-railway-backend.up.railway.app"
-
-# Environment variables for preview deployments
-[context.deploy-preview.environment]
-API_URL = "https://your-railway-backend.up.railway.app"
-
-# Environment variables for branch deployments
-[context.branch-deploy.environment]
-API_URL = "https://your-railway-backend.up.railway.app"
-
-# Security headers
-[[headers]]
-for = "/*"
-[headers.values]
-X-Frame-Options = "SAMEORIGIN"
-X-Content-Type-Options = "nosniff"
-X-XSS-Protection = "1; mode=block"
-Referrer-Policy = "strict-origin-when-cross-origin"
-Permissions-Policy = "geolocation=(), microphone=(), camera=()"
-
-# CORS headers for API calls
-[[headers]]
-for = "/api/*"
-[headers.values]
-Access-Control-Allow-Origin = "*"
-Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
-Access-Control-Allow-Headers = "Content-Type, Authorization"
+  for = "/*"
+  [headers.values]
+    "Cache-Control" = "public, max-age=3600"
+    "X-Content-Type-Options" = "nosniff"
+    "X-Frame-Options" = "DENY"
