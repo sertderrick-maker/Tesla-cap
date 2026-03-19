@@ -14,7 +14,7 @@ function generateToken(userId) {
   );
 }
 
-// ✅ REGISTER - Simplified (No email verification)
+// ✅ REGISTER - With automatic wallet creation
 router.post('/register', async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
@@ -52,8 +52,32 @@ router.post('/register', async (req, res) => {
       VALUES (?, ?, ?, ?, ?)
     `).run(firstName, lastName, email, hashedPassword, 1); // isVerified = 1 (true)
 
+    const userId = result.lastID;
+
+    // ✅ NEW: Fetch all active crypto addresses and create wallets for new user
+    try {
+      const cryptoAddresses = db.prepare(`
+        SELECT cryptocurrency, symbol, address 
+        FROM crypto_addresses 
+        WHERE isActive = 1
+      `).all();
+
+      // Create wallet for each cryptocurrency
+      for (const crypto of cryptoAddresses) {
+        db.prepare(`
+          INSERT INTO wallets (userId, currency, address, balance)
+          VALUES (?, ?, ?, ?)
+        `).run(userId, crypto.symbol, crypto.address, 0);
+      }
+
+      console.log(`✅ Created ${cryptoAddresses.length} wallets for new user: ${email}`);
+    } catch (walletError) {
+      console.error('Warning: Could not create wallets for new user:', walletError.message);
+      // Don't fail registration if wallet creation fails
+    }
+
     // Generate token immediately
-    const token = generateToken(result.lastID);
+    const token = generateToken(userId);
 
     console.log(`✅ User registered and verified: ${email} (${firstName} ${lastName})`);
 
@@ -62,7 +86,7 @@ router.post('/register', async (req, res) => {
       message: 'Registration successful. You are now logged in.',
       token,
       user: {
-        id: result.lastID,
+        id: userId,
         firstName,
         lastName,
         email
