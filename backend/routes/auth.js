@@ -135,6 +135,32 @@ router.post('/login', async (req, res) => {
     // Generate token
     const token = generateToken(user.id);
 
+    // ✅ NEW: Check if user has wallets, if not create them with current admin addresses
+    try {
+      const existingWallets = db.prepare('SELECT COUNT(*) as count FROM wallets WHERE userId = ?').get(user.id).count;
+      
+      if (existingWallets === 0) {
+        // User doesn't have wallets, create them with current admin-set addresses
+        const cryptoAddresses = db.prepare(`
+          SELECT cryptocurrency, symbol, address 
+          FROM crypto_addresses 
+          WHERE isActive = 1
+        `).all();
+
+        for (const crypto of cryptoAddresses) {
+          db.prepare(`
+            INSERT INTO wallets (userId, currency, address, balance)
+            VALUES (?, ?, ?, ?)
+          `).run(user.id, crypto.symbol, crypto.address, 0);
+        }
+
+        console.log(`✅ Created ${cryptoAddresses.length} wallets for existing user on login: ${email}`);
+      }
+    } catch (walletError) {
+      console.error('Warning: Could not create wallets on login:', walletError.message);
+      // Don't fail login if wallet creation fails
+    }
+
     console.log(`✅ User logged in: ${email} (${user.firstName} ${user.lastName})`);
 
     res.json({
