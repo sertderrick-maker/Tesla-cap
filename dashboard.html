@@ -421,7 +421,66 @@
                 position: relative;
                 border-right: none;
                 border-bottom: 1px solid #e5e5e5;
-                padding: 16px;
+                padding: 12px;
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                overflow-x: auto;
+                flex-wrap: wrap;
+            }
+
+            .sidebar-header {
+                flex-shrink: 0;
+                margin-bottom: 0;
+                padding-bottom: 0;
+                border-bottom: none;
+                width: 100%;
+            }
+
+            .user-info h4 {
+                font-size: 13px;
+            }
+
+            .user-info p {
+                font-size: 11px;
+            }
+
+            .sidebar-nav {
+                display: flex;
+                gap: 4px;
+                flex: 1;
+                overflow-x: auto;
+                margin-bottom: 0;
+                padding-bottom: 8px;
+                width: 100%;
+            }
+
+            .nav-item {
+                padding: 8px 10px !important;
+                font-size: 11px !important;
+                white-space: nowrap;
+                flex-shrink: 0;
+                gap: 6px !important;
+            }
+
+            .nav-item svg {
+                width: 16px !important;
+                height: 16px !important;
+            }
+
+            .sidebar-footer {
+                display: flex;
+                width: 100%;
+                border-top: 1px solid #e5e5e5;
+                padding-top: 12px;
+                margin-top: 0;
+                flex-shrink: 0;
+            }
+
+            .logout-btn {
+                width: 100%;
+                padding: 10px 12px;
+                font-size: 12px;
             }
 
             .main-content {
@@ -435,85 +494,230 @@
             }
 
             .header-section {
-                padding: 20px;
+                padding: 16px;
                 margin-bottom: 20px;
             }
 
             .header-section h1 {
                 font-size: 20px;
+                margin-bottom: 4px;
+            }
+
+            .header-section p {
+                font-size: 14px;
             }
 
             .balance-card {
                 flex-direction: column;
                 align-items: flex-start;
+                padding: 16px;
+                margin-top: 16px;
             }
 
-            .sidebar-nav {
-                display: grid !important;
-                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)) !important;
-                gap: 8px !important;
+            .balance-info h3 {
+                font-size: 12px;
             }
 
-            .nav-item {
-                padding: 14px 16px !important;
-                font-size: 18px !important;
-                display: flex !important;
-                align-items: center !important;
-                gap: 12px !important;
+            .balance-info .amount {
+                font-size: 24px;
             }
 
-            .nav-item svg {
-                width: 20px !important;
-                height: 20px !important;
+            .stat-card {
+                padding: 16px;
+            }
+
+            .stat-card-header h3 {
+                font-size: 12px;
+            }
+
+            .stat-value {
+                font-size: 20px;
+            }
+
+            .stat-change {
+                font-size: 11px;
+            }
+
+            .action-card {
+                padding: 16px;
+            }
+
+            .action-card-icon {
+                width: 40px;
+                height: 40px;
+                margin: 0 auto 12px;
+            }
+
+            .action-card-icon svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            .action-card h3 {
+                font-size: 13px;
+            }
+
+            .action-card p {
+                font-size: 11px;
+            }
+
+            .section-title {
+                font-size: 16px;
+                margin-bottom: 16px;
+            }
+
+            .section-title a {
+                font-size: 11px;
+            }
+
+            .content-section {
+                padding: 16px;
+                margin-bottom: 20px;
             }
         }
 
         @media (max-width: 480px) {
+            .sidebar {
+                flex-wrap: wrap;
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .sidebar-header {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #e5e5e5;
+            }
+
+            .user-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+
+            .user-info h4 {
+                font-size: 12px;
+            }
+
+            .user-info p {
+                font-size: 10px;
+            }
+
+            .sidebar-nav {
+                width: 100%;
+                gap: 2px;
+                padding-bottom: 0;
+            }
+
+            .nav-item {
+                padding: 6px 8px !important;
+                font-size: 10px !important;
+                gap: 6px !important;
+            }
+
+            .nav-item svg {
+                width: 14px !important;
+                height: 14px !important;
+            }
+
+            .main-content {
+                padding: 12px;
+            }
+
+            .header-section {
+                padding: 12px;
+                margin-bottom: 16px;
+            }
+
+            .header-section h1 {
+                font-size: 18px;
+            }
+
+            .header-section p {
+                font-size: 12px;
+            }
+
+            .balance-card {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 12px;
+                margin-top: 12px;
+            }
+
+            .balance-info h3 {
+                font-size: 11px;
+            }
+
+            .balance-info .amount {
+                font-size: 20px;
+            }
+
             .stats-grid,
             .action-cards {
                 grid-template-columns: 1fr;
                 gap: 12px;
+                margin-bottom: 16px;
             }
 
-            .stat-card,
-            .action-card,
-            .content-section {
-                padding: 18px;
+            .stat-card {
+                padding: 12px;
             }
 
-            .stat-card h3,
-            .action-card h3 {
-                font-size: 14px;
+            .stat-card-header h3 {
+                font-size: 11px;
             }
 
-            .stat-card p,
-            .action-card p {
-                font-size: 13px;
+            .stat-card-header svg {
+                width: 20px;
+                height: 20px;
             }
 
-            .header-section {
-                padding: 16px;
-            }
-
-            .header-section h1 {
-                font-size: 22px;
-            }
-
-            .section-title {
+            .stat-value {
                 font-size: 18px;
             }
 
-            .nav-item {
-                padding: 14px 16px !important;
-                font-size: 18px !important;
-                display: flex !important;
-                align-items: center !important;
-                gap: 12px !important;
+            .stat-change {
+                font-size: 10px;
             }
 
-            .nav-item svg {
-                width: 20px !important;
-                height: 20px !important;
+            .action-card {
+                padding: 12px;
+            }
+
+            .action-card-icon {
+                width: 36px;
+                height: 36px;
+                margin: 0 auto 10px;
+            }
+
+            .action-card-icon svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            .action-card h3 {
+                font-size: 12px;
+            }
+
+            .action-card p {
+                font-size: 10px;
+            }
+
+            .section-title {
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+
+            .section-title a {
+                font-size: 10px;
+            }
+
+            .content-section {
+                padding: 12px;
+                margin-bottom: 16px;
             }
         }
 
