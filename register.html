@@ -296,9 +296,11 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    // Save token
+                    // Save token and user data
                     localStorage.setItem('authToken', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
+
+                    console.log('✅ Registration successful:', data.user);
 
                     // Show success message
                     document.getElementById('successMessage').textContent = 'Account created successfully! Redirecting...';
