@@ -35,8 +35,8 @@ router.post('/register', async (req, res) => {
     }
 
     // Check if user already exists
-    const existingUser = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
-    if (existingUser) {
+    const existingUserResult = await db.pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (existingUserResult.rows.length > 0) {
       return res.status(400).json({
         success: false,
         message: 'Email already registered'
@@ -47,27 +47,26 @@ router.post('/register', async (req, res) => {
     const hashedPassword = bcrypt.hashSync(password, 10);
 
     // Insert user (account created immediately, no verification needed)
-    const result = db.prepare(`
-      INSERT INTO users (firstName, lastName, email, password, isVerified)
-      VALUES (?, ?, ?, ?, ?)
-    `).run(firstName, lastName, email, hashedPassword, 1); // isVerified = 1 (true)
+    const result = await db.pool.query(
+      'INSERT INTO users (firstName, lastName, email, password, isVerified) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+      [firstName, lastName, email, hashedPassword, 1]
+    );
 
-    const userId = result.lastID;
+    const userId = result.rows[0].id;
 
     // ✅ NEW: Fetch all active crypto addresses and create wallets for new user
     try {
-      const cryptoAddresses = db.prepare(`
-        SELECT cryptocurrency, symbol, address 
-        FROM crypto_addresses 
-        WHERE isActive = 1
-      `).all();
+      const cryptoResult = await db.pool.query(
+        'SELECT cryptocurrency, symbol, address FROM crypto_addresses WHERE isActive = 1'
+      );
+      const cryptoAddresses = cryptoResult.rows;
 
       // Create wallet for each cryptocurrency
       for (const crypto of cryptoAddresses) {
-        db.prepare(`
-          INSERT INTO wallets (userId, currency, address, balance)
-          VALUES (?, ?, ?, ?)
-        `).run(userId, crypto.symbol, crypto.address, 0);
+        await db.pool.query(
+          'INSERT INTO wallets (userId, currency, address, balance) VALUES ($1, $2, $3, $4)',
+          [userId, crypto.symbol, crypto.address, 0]
+        );
       }
 
       console.log(`✅ Created ${cryptoAddresses.length} wallets for new user: ${email}`);
@@ -115,13 +114,15 @@ router.post('/login', async (req, res) => {
     }
 
     // Find user by email
-    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
-    if (!user) {
+    const userResult = await db.pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (userResult.rows.length === 0) {
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password'
       });
     }
+
+    const user = userResult.rows[0];
 
     // Check password
     const passwordMatch = bcrypt.compareSync(password, user.password);
@@ -137,21 +138,21 @@ router.post('/login', async (req, res) => {
 
     // ✅ NEW: Check if user has wallets, if not create them with current admin addresses
     try {
-      const existingWallets = db.prepare('SELECT COUNT(*) as count FROM wallets WHERE userId = ?').get(user.id).count;
+      const walletResult = await db.pool.query('SELECT COUNT(*) as count FROM wallets WHERE userId = $1', [user.id]);
+      const existingWallets = parseInt(walletResult.rows[0].count);
       
       if (existingWallets === 0) {
         // User doesn't have wallets, create them with current admin-set addresses
-        const cryptoAddresses = db.prepare(`
-          SELECT cryptocurrency, symbol, address 
-          FROM crypto_addresses 
-          WHERE isActive = 1
-        `).all();
+        const cryptoResult = await db.pool.query(
+          'SELECT cryptocurrency, symbol, address FROM crypto_addresses WHERE isActive = 1'
+        );
+        const cryptoAddresses = cryptoResult.rows;
 
         for (const crypto of cryptoAddresses) {
-          db.prepare(`
-            INSERT INTO wallets (userId, currency, address, balance)
-            VALUES (?, ?, ?, ?)
-          `).run(user.id, crypto.symbol, crypto.address, 0);
+          await db.pool.query(
+            'INSERT INTO wallets (userId, currency, address, balance) VALUES ($1, $2, $3, $4)',
+            [user.id, crypto.symbol, crypto.address, 0]
+          );
         }
 
         console.log(`✅ Created ${cryptoAddresses.length} wallets for existing user on login: ${email}`);
@@ -185,7 +186,7 @@ router.post('/login', async (req, res) => {
 });
 
 // ✅ GET PROFILE
-router.get('/profile', (req, res) => {
+router.get('/profile', async (req, res) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
@@ -196,14 +197,16 @@ router.get('/profile', (req, res) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(decoded.userId);
+    const userResult = await db.pool.query('SELECT * FROM users WHERE id = $1', [decoded.userId]);
 
-    if (!user) {
+    if (userResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'User not found'
       });
     }
+
+    const user = userResult.rows[0];
 
     res.json({
       success: true,
@@ -224,7 +227,7 @@ router.get('/profile', (req, res) => {
 });
 
 // ✅ UPDATE PROFILE
-router.put('/update-profile', (req, res) => {
+router.put('/update-profile', async (req, res) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
@@ -246,8 +249,11 @@ router.put('/update-profile', (req, res) => {
 
     // Check if new email is already taken by another user
     if (email) {
-      const existingUser = db.prepare('SELECT * FROM users WHERE email = ? AND id != ?').get(email, decoded.userId);
-      if (existingUser) {
+      const existingResult = await db.pool.query(
+        'SELECT * FROM users WHERE email = $1 AND id != $2',
+        [email, decoded.userId]
+      );
+      if (existingResult.rows.length > 0) {
         return res.status(400).json({
           success: false,
           message: 'Email already in use'
@@ -256,11 +262,10 @@ router.put('/update-profile', (req, res) => {
     }
 
     // Update user
-    db.prepare(`
-      UPDATE users 
-      SET firstName = ?, lastName = ?, email = ?, dateOfBirth = ?
-      WHERE id = ?
-    `).run(firstName, lastName, email, dateOfBirth || null, decoded.userId);
+    await db.pool.query(
+      'UPDATE users SET firstName = $1, lastName = $2, email = $3, dateOfBirth = $4 WHERE id = $5',
+      [firstName, lastName, email, dateOfBirth || null, decoded.userId]
+    );
 
     console.log(`✅ Profile updated: ${email}`);
 
@@ -285,7 +290,7 @@ router.put('/update-profile', (req, res) => {
 });
 
 // ✅ CHANGE PASSWORD
-router.post('/change-password', (req, res) => {
+router.post('/change-password', async (req, res) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
@@ -313,13 +318,15 @@ router.post('/change-password', (req, res) => {
     }
 
     // Get user
-    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(decoded.userId);
-    if (!user) {
+    const userResult = await db.pool.query('SELECT * FROM users WHERE id = $1', [decoded.userId]);
+    if (userResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'User not found'
       });
     }
+
+    const user = userResult.rows[0];
 
     // Verify current password
     const passwordMatch = bcrypt.compareSync(currentPassword, user.password);
@@ -334,7 +341,7 @@ router.post('/change-password', (req, res) => {
     const hashedPassword = bcrypt.hashSync(newPassword, 10);
 
     // Update password
-    db.prepare('UPDATE users SET password = ? WHERE id = ?').run(hashedPassword, decoded.userId);
+    await db.pool.query('UPDATE users SET password = $1 WHERE id = $2', [hashedPassword, decoded.userId]);
 
     console.log(`✅ Password changed for user: ${user.email}`);
 
