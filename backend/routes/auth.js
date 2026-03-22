@@ -47,8 +47,9 @@ router.post('/register', async (req, res) => {
     const hashedPassword = bcrypt.hashSync(password, 10);
 
     // Insert user (account created immediately, no verification needed)
+    // ✅ NOTE: Database columns are lowercase: firstname, lastname, email, password
     const result = await db.query(
-      'INSERT INTO users (firstName, lastName, email, password, createdAt) VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
+      'INSERT INTO users (firstname, lastname, email, password, createdat) VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
       [firstName, lastName, email, hashedPassword]
     );
 
@@ -79,14 +80,15 @@ router.post('/register', async (req, res) => {
 
     console.log(`✅ User registered: ${email} (${firstName} ${lastName})`);
 
+    // ✅ Return with correct lowercase column names from database
     res.json({
       success: true,
       message: 'Registration successful',
       token,
       user: {
         id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        firstName: user.firstname,  // Database column is lowercase
+        lastName: user.lastname,    // Database column is lowercase
         email: user.email
       }
     });
@@ -135,7 +137,7 @@ router.post('/login', async (req, res) => {
     // Generate token
     const token = generateToken(user.id);
 
-    // ✅ NEW: Check if user has wallets, if not create them with current admin addresses
+    // ✅ Check if user has wallets, if not create them with current admin addresses
     try {
       const walletResult = await db.query('SELECT COUNT(*) as count FROM wallets WHERE userId = $1', [user.id]);
       const existingWallets = parseInt(walletResult.rows[0].count);
@@ -161,17 +163,17 @@ router.post('/login', async (req, res) => {
       // Don't fail login if wallet creation fails
     }
 
-    console.log(`✅ User logged in: ${email} (${user.firstName} ${user.lastName})`);
+    console.log(`✅ User logged in: ${email} (${user.firstname} ${user.lastname})`);
 
-    // ✅ IMPORTANT: Return firstName and lastName in the response
+    // ✅ IMPORTANT: Return firstName and lastName using correct lowercase column names
     res.json({
       success: true,
       message: 'Login successful',
       token,
       user: {
         id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        firstName: user.firstname,  // Database column is lowercase
+        lastName: user.lastname,    // Database column is lowercase
         email: user.email
       }
     });
@@ -212,8 +214,8 @@ router.get('/profile', async (req, res) => {
       success: true,
       user: {
         id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        firstName: user.firstname,
+        lastName: user.lastname,
         email: user.email
       }
     });
@@ -261,10 +263,10 @@ router.put('/update-profile', async (req, res) => {
       }
     }
 
-    // Update user
+    // Update user - use lowercase column names
     await db.query(
-      'UPDATE users SET firstName = $1, lastName = $2, email = $3, dateOfBirth = $4 WHERE id = $5',
-      [firstName, lastName, email, dateOfBirth || null, decoded.userId]
+      'UPDATE users SET firstname = $1, lastname = $2, email = $3, updatedat = NOW() WHERE id = $4',
+      [firstName, lastName, email, decoded.userId]
     );
 
     console.log(`✅ Profile updated: ${email}`);
@@ -341,7 +343,7 @@ router.post('/change-password', async (req, res) => {
     const hashedPassword = bcrypt.hashSync(newPassword, 10);
 
     // Update password
-    await db.query('UPDATE users SET password = $1 WHERE id = $2', [hashedPassword, decoded.userId]);
+    await db.query('UPDATE users SET password = $1, updatedat = NOW() WHERE id = $2', [hashedPassword, decoded.userId]);
 
     console.log(`✅ Password changed for user: ${user.email}`);
 
