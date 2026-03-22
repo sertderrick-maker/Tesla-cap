@@ -48,47 +48,46 @@ router.post('/register', async (req, res) => {
 
     // Insert user (account created immediately, no verification needed)
     const result = await db.query(
-      'INSERT INTO users (firstName, lastName, email, password, isVerified) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-      [firstName, lastName, email, hashedPassword, 1]
+      'INSERT INTO users (firstName, lastName, email, password, createdAt) VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
+      [firstName, lastName, email, hashedPassword]
     );
 
-    const userId = result.rows[0].id;
+    const user = result.rows[0];
 
-    // ✅ NEW: Fetch all active crypto addresses and create wallets for new user
+    // Create wallets for new user with current admin-set addresses
     try {
       const cryptoResult = await db.query(
         'SELECT cryptocurrency, symbol, address FROM crypto_addresses WHERE isActive = 1'
       );
       const cryptoAddresses = cryptoResult.rows;
 
-      // Create wallet for each cryptocurrency
       for (const crypto of cryptoAddresses) {
         await db.query(
           'INSERT INTO wallets (userId, currency, address, balance) VALUES ($1, $2, $3, $4)',
-          [userId, crypto.symbol, crypto.address, 0]
+          [user.id, crypto.symbol, crypto.address, 0]
         );
       }
 
       console.log(`✅ Created ${cryptoAddresses.length} wallets for new user: ${email}`);
     } catch (walletError) {
-      console.error('Warning: Could not create wallets for new user:', walletError.message);
+      console.error('Warning: Could not create wallets:', walletError.message);
       // Don't fail registration if wallet creation fails
     }
 
-    // Generate token immediately
-    const token = generateToken(userId);
+    // Generate token
+    const token = generateToken(user.id);
 
-    console.log(`✅ User registered and verified: ${email} (${firstName} ${lastName})`);
+    console.log(`✅ User registered: ${email} (${firstName} ${lastName})`);
 
     res.json({
       success: true,
-      message: 'Registration successful. You are now logged in.',
+      message: 'Registration successful',
       token,
       user: {
-        id: userId,
-        firstName,
-        lastName,
-        email
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email
       }
     });
   } catch (error) {
@@ -101,7 +100,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// ✅ LOGIN
+// ✅ LOGIN - Returns firstName and lastName
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -164,6 +163,7 @@ router.post('/login', async (req, res) => {
 
     console.log(`✅ User logged in: ${email} (${user.firstName} ${user.lastName})`);
 
+    // ✅ IMPORTANT: Return firstName and lastName in the response
     res.json({
       success: true,
       message: 'Login successful',
