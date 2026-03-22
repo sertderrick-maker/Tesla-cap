@@ -149,11 +149,9 @@ async function initializeDatabase() {
           ['admin', hashedPassword, 'admin@teslascap.com', 'admin', 1]
         );
         console.log('✅ Admin user created: admin / admin1!');
-      } else {
-        console.log('ℹ️  Admin user already exists');
       }
     } catch (error) {
-      console.log('ℹ️  Admin user already exists or error:', error.message);
+      console.log('ℹ️  Admin user already exists');
     }
 
     // Initialize crypto addresses if not exists
@@ -176,17 +174,12 @@ async function initializeDatabase() {
           );
         }
         console.log('✅ Crypto addresses initialized');
-      } else {
-        console.log('ℹ️  Crypto addresses already exist');
       }
     } catch (error) {
-      console.log('ℹ️  Crypto addresses already exist or error:', error.message);
+      console.log('ℹ️  Crypto addresses already exist');
     }
 
     console.log('✅ PostgreSQL Database initialized successfully!');
-    console.log('✅ All tables created');
-    console.log('✅ Admin panel ready');
-    console.log('✅ Crypto addresses configured');
   } catch (error) {
     console.error('❌ Database initialization error:', error.message);
   }
@@ -195,31 +188,56 @@ async function initializeDatabase() {
 // Initialize on startup
 initializeDatabase();
 
-// Create wrapper object for SQLite compatibility
-class DatabaseWrapper {
-  prepare(sql) {
+// Create a wrapper that mimics better-sqlite3 API
+const db = {
+  prepare: (sql) => {
     return {
-      run: (...params) => {
-        return pool.query(sql, params);
+      run: async (...params) => {
+        try {
+          const result = await pool.query(sql, params);
+          return { changes: result.rowCount, lastID: result.rows[0]?.id };
+        } catch (error) {
+          console.error('Query error:', error);
+          throw error;
+        }
       },
-      get: (...params) => {
-        return pool.query(sql, params);
+      get: async (...params) => {
+        try {
+          const result = await pool.query(sql, params);
+          return result.rows[0];
+        } catch (error) {
+          console.error('Query error:', error);
+          throw error;
+        }
       },
-      all: (...params) => {
-        return pool.query(sql, params);
+      all: async (...params) => {
+        try {
+          const result = await pool.query(sql, params);
+          return result.rows;
+        } catch (error) {
+          console.error('Query error:', error);
+          throw error;
+        }
       }
     };
+  },
+  exec: async (sql) => {
+    try {
+      return await pool.query(sql);
+    } catch (error) {
+      console.error('Query error:', error);
+      throw error;
+    }
+  },
+  query: async (sql, params) => {
+    try {
+      return await pool.query(sql, params);
+    } catch (error) {
+      console.error('Query error:', error);
+      throw error;
+    }
   }
+};
 
-  exec(sql) {
-    return pool.query(sql);
-  }
-
-  query(sql, params) {
-    return pool.query(sql, params);
-  }
-}
-
-const db = new DatabaseWrapper();
 module.exports = db;
 module.exports.pool = pool;
