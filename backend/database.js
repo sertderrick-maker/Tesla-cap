@@ -11,6 +11,8 @@ const pool = new Pool({
 // Initialize database tables
 async function initializeDatabase() {
   try {
+    console.log('🔄 Initializing PostgreSQL database...');
+
     // Create users table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
@@ -25,6 +27,7 @@ async function initializeDatabase() {
         updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
+    console.log('✅ Users table created');
 
     // Create wallets table
     await pool.query(`
@@ -40,6 +43,7 @@ async function initializeDatabase() {
         UNIQUE(userId, currency)
       );
     `);
+    console.log('✅ Wallets table created');
 
     // Create transactions table
     await pool.query(`
@@ -57,6 +61,7 @@ async function initializeDatabase() {
         FOREIGN KEY (walletId) REFERENCES wallets(id) ON DELETE CASCADE
       );
     `);
+    console.log('✅ Transactions table created');
 
     // Create investments table
     await pool.query(`
@@ -72,6 +77,7 @@ async function initializeDatabase() {
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
       );
     `);
+    console.log('✅ Investments table created');
 
     // Create deposits table
     await pool.query(`
@@ -87,10 +93,10 @@ async function initializeDatabase() {
         confirmedBy INTEGER,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
-        FOREIGN KEY (confirmedBy) REFERENCES admin_users(id)
+        FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
       );
     `);
+    console.log('✅ Deposits table created');
 
     // Create admin_users table
     await pool.query(`
@@ -104,6 +110,7 @@ async function initializeDatabase() {
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
+    console.log('✅ Admin users table created');
 
     // Create crypto_addresses table
     await pool.query(`
@@ -117,6 +124,7 @@ async function initializeDatabase() {
         updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
+    console.log('✅ Crypto addresses table created');
 
     // Create admin_logs table
     await pool.query(`
@@ -129,6 +137,7 @@ async function initializeDatabase() {
         FOREIGN KEY (adminId) REFERENCES admin_users(id) ON DELETE CASCADE
       );
     `);
+    console.log('✅ Admin logs table created');
 
     // Initialize admin user if not exists
     try {
@@ -140,15 +149,19 @@ async function initializeDatabase() {
           ['admin', hashedPassword, 'admin@teslascap.com', 'admin', 1]
         );
         console.log('✅ Admin user created: admin / admin1!');
+      } else {
+        console.log('ℹ️  Admin user already exists');
       }
     } catch (error) {
-      console.log('ℹ️  Admin user already exists');
+      console.log('ℹ️  Admin user already exists or error:', error.message);
     }
 
     // Initialize crypto addresses if not exists
     try {
       const cryptoResult = await pool.query('SELECT COUNT(*) as count FROM crypto_addresses');
-      if (parseInt(cryptoResult.rows[0].count) === 0) {
+      const count = parseInt(cryptoResult.rows[0].count);
+      
+      if (count === 0) {
         const addresses = [
           { cryptocurrency: 'Bitcoin', symbol: 'BTC', address: '1A1z7agoat2LWQLQ1qhkzNVrCF5sGHwSqX' },
           { cryptocurrency: 'Ethereum', symbol: 'ETH', address: '0x742d35Cc6634C0532925a3b844Bc9e7595f42e0' },
@@ -163,24 +176,30 @@ async function initializeDatabase() {
           );
         }
         console.log('✅ Crypto addresses initialized');
+      } else {
+        console.log('ℹ️  Crypto addresses already exist');
       }
     } catch (error) {
-      console.log('ℹ️  Crypto addresses already exist');
+      console.log('ℹ️  Crypto addresses already exist or error:', error.message);
     }
 
-    console.log('✅ PostgreSQL Database initialized');
-    console.log('✅ Admin panel tables created');
+    console.log('✅ PostgreSQL Database initialized successfully!');
+    console.log('✅ All tables created');
+    console.log('✅ Admin panel ready');
     console.log('✅ Crypto addresses configured');
   } catch (error) {
     console.error('❌ Database initialization error:', error.message);
-    process.exit(1);
+    console.error('Stack:', error.stack);
+    // Don't exit - let the server continue
   }
 }
 
 // Initialize on startup
-initializeDatabase();
+initializeDatabase().catch(err => {
+  console.error('Failed to initialize database:', err);
+});
 
-// Wrapper for prepare and run (for compatibility with existing code)
+// Wrapper for compatibility with existing code
 const db = {
   prepare: (sql) => {
     return {
