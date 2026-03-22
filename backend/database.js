@@ -189,19 +189,15 @@ async function initializeDatabase() {
     console.log('✅ Crypto addresses configured');
   } catch (error) {
     console.error('❌ Database initialization error:', error.message);
-    console.error('Stack:', error.stack);
-    // Don't exit - let the server continue
   }
 }
 
 // Initialize on startup
-initializeDatabase().catch(err => {
-  console.error('Failed to initialize database:', err);
-});
+initializeDatabase();
 
-// Wrapper for compatibility with existing code
-const db = {
-  prepare: (sql) => {
+// Create wrapper object for SQLite compatibility
+class DatabaseWrapper {
+  prepare(sql) {
     return {
       run: (...params) => {
         return pool.query(sql, params);
@@ -213,14 +209,17 @@ const db = {
         return pool.query(sql, params);
       }
     };
-  },
-  exec: (sql) => {
+  }
+
+  exec(sql) {
     return pool.query(sql);
-  },
-  query: (sql, params) => {
+  }
+
+  query(sql, params) {
     return pool.query(sql, params);
   }
-};
+}
 
+const db = new DatabaseWrapper();
 module.exports = db;
 module.exports.pool = pool;
