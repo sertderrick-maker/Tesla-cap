@@ -35,7 +35,7 @@ router.post('/register', async (req, res) => {
     }
 
     // Check if user already exists
-    const existingUserResult = await db.pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    const existingUserResult = await db.query('SELECT * FROM users WHERE email = $1', [email]);
     if (existingUserResult.rows.length > 0) {
       return res.status(400).json({
         success: false,
@@ -47,7 +47,7 @@ router.post('/register', async (req, res) => {
     const hashedPassword = bcrypt.hashSync(password, 10);
 
     // Insert user (account created immediately, no verification needed)
-    const result = await db.pool.query(
+    const result = await db.query(
       'INSERT INTO users (firstName, lastName, email, password, isVerified) VALUES ($1, $2, $3, $4, $5) RETURNING id',
       [firstName, lastName, email, hashedPassword, 1]
     );
@@ -56,14 +56,14 @@ router.post('/register', async (req, res) => {
 
     // ✅ NEW: Fetch all active crypto addresses and create wallets for new user
     try {
-      const cryptoResult = await db.pool.query(
+      const cryptoResult = await db.query(
         'SELECT cryptocurrency, symbol, address FROM crypto_addresses WHERE isActive = 1'
       );
       const cryptoAddresses = cryptoResult.rows;
 
       // Create wallet for each cryptocurrency
       for (const crypto of cryptoAddresses) {
-        await db.pool.query(
+        await db.query(
           'INSERT INTO wallets (userId, currency, address, balance) VALUES ($1, $2, $3, $4)',
           [userId, crypto.symbol, crypto.address, 0]
         );
@@ -114,7 +114,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Find user by email
-    const userResult = await db.pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    const userResult = await db.query('SELECT * FROM users WHERE email = $1', [email]);
     if (userResult.rows.length === 0) {
       return res.status(401).json({
         success: false,
@@ -138,18 +138,18 @@ router.post('/login', async (req, res) => {
 
     // ✅ NEW: Check if user has wallets, if not create them with current admin addresses
     try {
-      const walletResult = await db.pool.query('SELECT COUNT(*) as count FROM wallets WHERE userId = $1', [user.id]);
+      const walletResult = await db.query('SELECT COUNT(*) as count FROM wallets WHERE userId = $1', [user.id]);
       const existingWallets = parseInt(walletResult.rows[0].count);
       
       if (existingWallets === 0) {
         // User doesn't have wallets, create them with current admin-set addresses
-        const cryptoResult = await db.pool.query(
+        const cryptoResult = await db.query(
           'SELECT cryptocurrency, symbol, address FROM crypto_addresses WHERE isActive = 1'
         );
         const cryptoAddresses = cryptoResult.rows;
 
         for (const crypto of cryptoAddresses) {
-          await db.pool.query(
+          await db.query(
             'INSERT INTO wallets (userId, currency, address, balance) VALUES ($1, $2, $3, $4)',
             [user.id, crypto.symbol, crypto.address, 0]
           );
@@ -197,7 +197,7 @@ router.get('/profile', async (req, res) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-    const userResult = await db.pool.query('SELECT * FROM users WHERE id = $1', [decoded.userId]);
+    const userResult = await db.query('SELECT * FROM users WHERE id = $1', [decoded.userId]);
 
     if (userResult.rows.length === 0) {
       return res.status(404).json({
@@ -249,7 +249,7 @@ router.put('/update-profile', async (req, res) => {
 
     // Check if new email is already taken by another user
     if (email) {
-      const existingResult = await db.pool.query(
+      const existingResult = await db.query(
         'SELECT * FROM users WHERE email = $1 AND id != $2',
         [email, decoded.userId]
       );
@@ -262,7 +262,7 @@ router.put('/update-profile', async (req, res) => {
     }
 
     // Update user
-    await db.pool.query(
+    await db.query(
       'UPDATE users SET firstName = $1, lastName = $2, email = $3, dateOfBirth = $4 WHERE id = $5',
       [firstName, lastName, email, dateOfBirth || null, decoded.userId]
     );
@@ -318,7 +318,7 @@ router.post('/change-password', async (req, res) => {
     }
 
     // Get user
-    const userResult = await db.pool.query('SELECT * FROM users WHERE id = $1', [decoded.userId]);
+    const userResult = await db.query('SELECT * FROM users WHERE id = $1', [decoded.userId]);
     if (userResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
@@ -341,7 +341,7 @@ router.post('/change-password', async (req, res) => {
     const hashedPassword = bcrypt.hashSync(newPassword, 10);
 
     // Update password
-    await db.pool.query('UPDATE users SET password = $1 WHERE id = $2', [hashedPassword, decoded.userId]);
+    await db.query('UPDATE users SET password = $1 WHERE id = $2', [hashedPassword, decoded.userId]);
 
     console.log(`✅ Password changed for user: ${user.email}`);
 
