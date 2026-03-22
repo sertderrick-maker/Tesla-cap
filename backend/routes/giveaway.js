@@ -1,5 +1,5 @@
 const express = require('express');
-const db = require('../database');
+const pool = require('../database');
 const { sendGiveawayRegistration, sendTestMessage } = require('../services/telegramService');
 const { verifyToken } = require('../utils/jwt');
 
@@ -36,11 +36,11 @@ router.post('/register', async (req, res) => {
 
     // Save registration to database
     try {
-      db.prepare(`
+      await pool.query(`
         INSERT INTO giveaway_registrations 
         (userId, fullName, email, phone, country, message, giveawayId, giveawayName, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `).run(
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      `, [
         userId || null,
         fullName,
         email,
@@ -50,7 +50,7 @@ router.post('/register', async (req, res) => {
         giveawayId || null,
         giveawayName || 'Unknown Giveaway',
         'pending'
-      );
+      ]);
     } catch (dbError) {
       console.log('ℹ️  Database table might not exist yet, continuing with Telegram send');
     }
@@ -114,14 +114,14 @@ router.post('/test-telegram', async (req, res) => {
  */
 router.get('/registrations', async (req, res) => {
   try {
-    const registrations = db.prepare(`
+    const registrations = await pool.query(`
       SELECT * FROM giveaway_registrations
       ORDER BY createdAt DESC
-    `).all();
+    `);
 
     res.json({
       success: true,
-      registrations
+      registrations: registrations.rows
     });
   } catch (error) {
     res.status(500).json({
@@ -140,17 +140,17 @@ router.get('/registrations/:giveawayId', async (req, res) => {
   try {
     const { giveawayId } = req.params;
 
-    const registrations = db.prepare(`
+    const registrations = await pool.query(`
       SELECT * FROM giveaway_registrations
-      WHERE giveawayId = ?
+      WHERE giveawayId = $1
       ORDER BY createdAt DESC
-    `).all(giveawayId);
+    `, [giveawayId]);
 
     res.json({
       success: true,
       giveawayId,
-      count: registrations.length,
-      registrations
+      count: registrations.rows.length,
+      registrations: registrations.rows
     });
   } catch (error) {
     res.status(500).json({

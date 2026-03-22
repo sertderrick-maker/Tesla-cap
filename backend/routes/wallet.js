@@ -1,19 +1,20 @@
 const express = require('express');
-const db = require('../database');
+const pool = require('../database');
 const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
 // ✅ GET USER'S TOTAL BALANCE (USD equivalent)
-router.get('/total-balance', authMiddleware, (req, res) => {
+router.get('/total-balance', authMiddleware, async (req, res) => {
   try {
-    const balances = db.prepare(`
-      SELECT SUM(balance) as totalBalance FROM wallets WHERE userId = ?
-    `).get(req.userId);
+    const balances = await pool.query(
+      'SELECT COALESCE(SUM(balance), 0) as totalBalance FROM wallets WHERE userId = $1',
+      [req.userId]
+    );
 
     res.json({
       success: true,
-      totalBalance: balances?.totalBalance || 0
+      totalBalance: parseFloat(balances.rows[0].totalbalance) || 0
     });
   } catch (error) {
     console.error('Get total balance error:', error);
@@ -26,40 +27,43 @@ router.get('/total-balance', authMiddleware, (req, res) => {
 });
 
 // ✅ GET ALL WALLET BALANCES FOR USER
-router.get('/balances', authMiddleware, (req, res) => {
+router.get('/balances', authMiddleware, async (req, res) => {
   try {
     // ✅ NEW: Check if user has wallets, if not create them with current admin addresses
-    const existingWallets = db.prepare('SELECT COUNT(*) as count FROM wallets WHERE userId = ?').get(req.userId).count;
+    const existingWallets = await pool.query(
+      'SELECT COUNT(*) as count FROM wallets WHERE userId = $1',
+      [req.userId]
+    );
     
-    if (existingWallets === 0) {
+    const count = parseInt(existingWallets.rows[0].count);
+    if (count === 0) {
       // User doesn't have wallets, create them with current admin-set addresses
       try {
-        const cryptoAddresses = db.prepare(`
-          SELECT cryptocurrency, symbol, address 
-          FROM crypto_addresses 
-          WHERE isActive = 1
-        `).all();
+        const cryptoAddresses = await pool.query(
+          'SELECT cryptocurrency, symbol, address FROM crypto_addresses WHERE isActive = 1'
+        );
 
-        for (const crypto of cryptoAddresses) {
-          db.prepare(`
-            INSERT INTO wallets (userId, currency, address, balance)
-            VALUES (?, ?, ?, ?)
-          `).run(req.userId, crypto.symbol, crypto.address, 0);
+        for (const crypto of cryptoAddresses.rows) {
+          await pool.query(
+            'INSERT INTO wallets (userId, currency, address, balance) VALUES ($1, $2, $3, $4)',
+            [req.userId, crypto.symbol, crypto.address, 0]
+          );
         }
 
-        console.log(`✅ Created ${cryptoAddresses.length} wallets for user on wallet access: ${req.userId}`);
+        console.log(`✅ Created ${cryptoAddresses.rows.length} wallets for user on wallet access: ${req.userId}`);
       } catch (walletError) {
         console.error('Warning: Could not create wallets on wallet access:', walletError.message);
       }
     }
 
-    const balances = db.prepare(`
-      SELECT id, cryptocurrency, balance, address FROM wallets WHERE userId = ?
-    `).all(req.userId);
+    const balances = await pool.query(
+      'SELECT id, currency as cryptocurrency, balance, address FROM wallets WHERE userId = $1',
+      [req.userId]
+    );
 
     res.json({
       success: true,
-      balances: balances || []
+      balances: balances.rows || []
     });
   } catch (error) {
     console.error('Get balances error:', error);
@@ -72,18 +76,19 @@ router.get('/balances', authMiddleware, (req, res) => {
 });
 
 // ✅ GET SPECIFIC CRYPTOCURRENCY BALANCE
-router.get('/balance/:cryptocurrency', authMiddleware, (req, res) => {
+router.get('/balance/:cryptocurrency', authMiddleware, async (req, res) => {
   try {
     const { cryptocurrency } = req.params;
 
-    const wallet = db.prepare(`
-      SELECT balance FROM wallets WHERE userId = ? AND cryptocurrency = ?
-    `).get(req.userId, cryptocurrency);
+    const wallet = await pool.query(
+      'SELECT balance FROM wallets WHERE userId = $1 AND currency = $2',
+      [req.userId, cryptocurrency]
+    );
 
     res.json({
       success: true,
       cryptocurrency,
-      balance: wallet ? wallet.balance : 0
+      balance: wallet.rows.length > 0 ? wallet.rows[0].balance : 0
     });
   } catch (error) {
     console.error('Get balance error:', error);
@@ -96,7 +101,7 @@ router.get('/balance/:cryptocurrency', authMiddleware, (req, res) => {
 });
 
 // ✅ SUBMIT DEPOSIT (Creates pending deposit record)
-router.post('/deposit', authMiddleware, (req, res) => {
+router.post('/deposit', authMiddleware, async (req, res) => {
   try {
     const { cryptocurrency, amount, walletAddress } = req.body;
 
@@ -115,17 +120,19 @@ router.post('/deposit', authMiddleware, (req, res) => {
     }
 
     // Create pending deposit record
-    const result = db.prepare(`
-      INSERT INTO deposits (userId, cryptocurrency, amount, walletAddress, status)
-      VALUES (?, ?, ?, ?, ?)
-    `).run(req.userId, cryptocurrency, amount, walletAddress, 'pending');
+    const result = await pool.query(
+      'INSERT INTO deposits (userId, cryptocurrency, amount, walletAddress, status) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+      [req.userId, cryptocurrency, amount, walletAddress, 'pending']
+    );
+
+    const depositId = result.rows[0].id;
 
     console.log(`✅ Deposit submitted: User ${req.userId}, ${amount} ${cryptocurrency}, Status: Pending`);
 
     res.json({
       success: true,
       message: 'Deposit submitted successfully. Awaiting confirmation.',
-      depositId: result.lastID,
+      depositId,
       amount,
       cryptocurrency,
       status: 'pending'
@@ -141,18 +148,19 @@ router.post('/deposit', authMiddleware, (req, res) => {
 });
 
 // ✅ GET PENDING DEPOSITS FOR USER
-router.get('/pending-deposits', authMiddleware, (req, res) => {
+router.get('/pending-deposits', authMiddleware, async (req, res) => {
   try {
-    const deposits = db.prepare(`
-      SELECT id, cryptocurrency, amount, walletAddress, status, createdAt
-      FROM deposits 
-      WHERE userId = ? AND status = 'pending'
-      ORDER BY createdAt DESC
-    `).all(req.userId);
+    const deposits = await pool.query(
+      `SELECT id, cryptocurrency, amount, walletAddress, status, createdAt
+       FROM deposits 
+       WHERE userId = $1 AND status = 'pending'
+       ORDER BY createdAt DESC`,
+      [req.userId]
+    );
 
     res.json({
       success: true,
-      pendingDeposits: deposits || []
+      pendingDeposits: deposits.rows || []
     });
   } catch (error) {
     console.error('Get pending deposits error:', error);
@@ -165,19 +173,20 @@ router.get('/pending-deposits', authMiddleware, (req, res) => {
 });
 
 // ✅ GET ALL DEPOSITS FOR USER (including confirmed)
-router.get('/deposits', authMiddleware, (req, res) => {
+router.get('/deposits', authMiddleware, async (req, res) => {
   try {
-    const deposits = db.prepare(`
-      SELECT id, cryptocurrency, amount, walletAddress, status, transactionHash, confirmedAt, createdAt
-      FROM deposits 
-      WHERE userId = ?
-      ORDER BY createdAt DESC
-      LIMIT 50
-    `).all(req.userId);
+    const deposits = await pool.query(
+      `SELECT id, cryptocurrency, amount, walletAddress, status, transactionHash, confirmedAt, createdAt
+       FROM deposits 
+       WHERE userId = $1
+       ORDER BY createdAt DESC
+       LIMIT 50`,
+      [req.userId]
+    );
 
     res.json({
       success: true,
-      deposits: deposits || []
+      deposits: deposits.rows || []
     });
   } catch (error) {
     console.error('Get deposits error:', error);
@@ -190,22 +199,25 @@ router.get('/deposits', authMiddleware, (req, res) => {
 });
 
 // ✅ ADMIN: CONFIRM DEPOSIT (Updates balance and marks deposit as completed)
-router.put('/confirm-deposit/:depositId', authMiddleware, (req, res) => {
+router.put('/confirm-deposit/:depositId', authMiddleware, async (req, res) => {
   try {
     const { depositId } = req.params;
     const { transactionHash, notes } = req.body;
 
     // Get deposit record
-    const deposit = db.prepare(`
-      SELECT * FROM deposits WHERE id = ?
-    `).get(depositId);
+    const depositResult = await pool.query(
+      'SELECT * FROM deposits WHERE id = $1',
+      [depositId]
+    );
 
-    if (!deposit) {
+    if (depositResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'Deposit not found'
       });
     }
+
+    const deposit = depositResult.rows[0];
 
     if (deposit.status !== 'pending') {
       return res.status(400).json({
@@ -215,38 +227,46 @@ router.put('/confirm-deposit/:depositId', authMiddleware, (req, res) => {
     }
 
     // Get or create wallet
-    let wallet = db.prepare(`
-      SELECT * FROM wallets WHERE userId = ? AND cryptocurrency = ?
-    `).get(deposit.userId, deposit.cryptocurrency);
+    let walletResult = await pool.query(
+      'SELECT * FROM wallets WHERE userId = $1 AND currency = $2',
+      [deposit.userid, deposit.cryptocurrency]
+    );
 
-    if (!wallet) {
-      db.prepare(`
-        INSERT INTO wallets (userId, cryptocurrency, balance, address)
-        VALUES (?, ?, ?, ?)
-      `).run(deposit.userId, deposit.cryptocurrency, 0, deposit.walletAddress);
+    if (walletResult.rows.length === 0) {
+      await pool.query(
+        'INSERT INTO wallets (userId, currency, balance, address) VALUES ($1, $2, $3, $4)',
+        [deposit.userid, deposit.cryptocurrency, 0, deposit.walletaddress]
+      );
+      walletResult = await pool.query(
+        'SELECT * FROM wallets WHERE userId = $1 AND currency = $2',
+        [deposit.userid, deposit.cryptocurrency]
+      );
     }
 
+    const wallet = walletResult.rows[0];
+
     // Update wallet balance
-    db.prepare(`
-      UPDATE wallets 
-      SET balance = balance + ? 
-      WHERE userId = ? AND cryptocurrency = ?
-    `).run(deposit.amount, deposit.userId, deposit.cryptocurrency);
+    await pool.query(
+      'UPDATE wallets SET balance = balance + $1 WHERE userId = $2 AND currency = $3',
+      [deposit.amount, deposit.userid, deposit.cryptocurrency]
+    );
 
     // Update deposit status to confirmed
-    db.prepare(`
-      UPDATE deposits 
-      SET status = 'confirmed', transactionHash = ?, confirmedBy = ?, confirmedAt = CURRENT_TIMESTAMP, notes = ?
-      WHERE id = ?
-    `).run(transactionHash || null, req.userId, notes || null, depositId);
+    await pool.query(
+      `UPDATE deposits 
+       SET status = 'confirmed', transactionHash = $1, confirmedBy = $2, confirmedAt = CURRENT_TIMESTAMP
+       WHERE id = $3`,
+      [transactionHash || null, req.userId, depositId]
+    );
 
     // Record transaction
-    db.prepare(`
-      INSERT INTO transactions (userId, cryptocurrency, type, amount, walletAddress, status, description)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(deposit.userId, deposit.cryptocurrency, 'deposit', deposit.amount, deposit.walletAddress, 'completed', `Deposit confirmed by admin`);
+    await pool.query(
+      `INSERT INTO transactions (userId, walletId, type, amount, status, description)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [deposit.userid, wallet.id, 'deposit', deposit.amount, 'completed', 'Deposit confirmed by admin']
+    );
 
-    console.log(`✅ Deposit confirmed: ID ${depositId}, User ${deposit.userId}, Amount: ${deposit.amount} ${deposit.cryptocurrency}`);
+    console.log(`✅ Deposit confirmed: ID ${depositId}, User ${deposit.userid}, Amount: ${deposit.amount} ${deposit.cryptocurrency}`);
 
     res.json({
       success: true,
@@ -254,7 +274,7 @@ router.put('/confirm-deposit/:depositId', authMiddleware, (req, res) => {
       depositId,
       amount: deposit.amount,
       cryptocurrency: deposit.cryptocurrency,
-      newBalance: wallet ? wallet.balance + deposit.amount : deposit.amount
+      newBalance: wallet.balance + deposit.amount
     });
   } catch (error) {
     console.error('Confirm deposit error:', error);
@@ -267,22 +287,25 @@ router.put('/confirm-deposit/:depositId', authMiddleware, (req, res) => {
 });
 
 // ✅ REJECT DEPOSIT
-router.put('/reject-deposit/:depositId', authMiddleware, (req, res) => {
+router.put('/reject-deposit/:depositId', authMiddleware, async (req, res) => {
   try {
     const { depositId } = req.params;
     const { notes } = req.body;
 
     // Get deposit record
-    const deposit = db.prepare(`
-      SELECT * FROM deposits WHERE id = ?
-    `).get(depositId);
+    const depositResult = await pool.query(
+      'SELECT * FROM deposits WHERE id = $1',
+      [depositId]
+    );
 
-    if (!deposit) {
+    if (depositResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'Deposit not found'
       });
     }
+
+    const deposit = depositResult.rows[0];
 
     if (deposit.status !== 'pending') {
       return res.status(400).json({
@@ -292,13 +315,14 @@ router.put('/reject-deposit/:depositId', authMiddleware, (req, res) => {
     }
 
     // Update deposit status to rejected
-    db.prepare(`
-      UPDATE deposits 
-      SET status = 'rejected', confirmedBy = ?, confirmedAt = CURRENT_TIMESTAMP, notes = ?
-      WHERE id = ?
-    `).run(req.userId, notes || null, depositId);
+    await pool.query(
+      `UPDATE deposits 
+       SET status = 'rejected', confirmedBy = $1, confirmedAt = CURRENT_TIMESTAMP
+       WHERE id = $2`,
+      [req.userId, depositId]
+    );
 
-    console.log(`❌ Deposit rejected: ID ${depositId}, User ${deposit.userId}, Amount: ${deposit.amount} ${deposit.cryptocurrency}`);
+    console.log(`❌ Deposit rejected: ID ${depositId}, User ${deposit.userid}, Amount: ${deposit.amount} ${deposit.cryptocurrency}`);
 
     res.json({
       success: true,
@@ -316,7 +340,7 @@ router.put('/reject-deposit/:depositId', authMiddleware, (req, res) => {
 });
 
 // ✅ WITHDRAW FUNDS
-router.post('/withdraw', authMiddleware, (req, res) => {
+router.post('/withdraw', authMiddleware, async (req, res) => {
   try {
     const { cryptocurrency, amount, walletAddress } = req.body;
 
@@ -328,11 +352,12 @@ router.post('/withdraw', authMiddleware, (req, res) => {
     }
 
     // Check balance
-    const wallet = db.prepare(`
-      SELECT balance FROM wallets WHERE userId = ? AND cryptocurrency = ?
-    `).get(req.userId, cryptocurrency);
+    const wallet = await pool.query(
+      'SELECT balance FROM wallets WHERE userId = $1 AND currency = $2',
+      [req.userId, cryptocurrency]
+    );
 
-    if (!wallet || wallet.balance < amount) {
+    if (wallet.rows.length === 0 || wallet.rows[0].balance < amount) {
       return res.status(400).json({
         success: false,
         message: 'Insufficient balance'
@@ -340,17 +365,23 @@ router.post('/withdraw', authMiddleware, (req, res) => {
     }
 
     // Update balance
-    db.prepare(`
-      UPDATE wallets 
-      SET balance = balance - ? 
-      WHERE userId = ? AND cryptocurrency = ?
-    `).run(amount, req.userId, cryptocurrency);
+    await pool.query(
+      'UPDATE wallets SET balance = balance - $1 WHERE userId = $2 AND currency = $3',
+      [amount, req.userId, cryptocurrency]
+    );
+
+    // Get wallet ID for transaction record
+    const walletResult = await pool.query(
+      'SELECT id FROM wallets WHERE userId = $1 AND currency = $2',
+      [req.userId, cryptocurrency]
+    );
 
     // Record transaction
-    db.prepare(`
-      INSERT INTO transactions (userId, cryptocurrency, type, amount, walletAddress, status)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `).run(req.userId, cryptocurrency, 'withdrawal', amount, walletAddress, 'completed');
+    await pool.query(
+      `INSERT INTO transactions (userId, walletId, type, amount, status, description)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [req.userId, walletResult.rows[0].id, 'withdrawal', amount, 'completed', `Withdrawal to ${walletAddress}`]
+    );
 
     console.log(`✅ Withdrawal successful: User ${req.userId}, ${amount} ${cryptocurrency}`);
 
@@ -371,19 +402,20 @@ router.post('/withdraw', authMiddleware, (req, res) => {
 });
 
 // ✅ GET TRANSACTION HISTORY
-router.get('/transactions', authMiddleware, (req, res) => {
+router.get('/transactions', authMiddleware, async (req, res) => {
   try {
-    const transactions = db.prepare(`
-      SELECT id, cryptocurrency, type, amount, walletAddress, status, description, createdAt
-      FROM transactions 
-      WHERE userId = ? 
-      ORDER BY createdAt DESC 
-      LIMIT 50
-    `).all(req.userId);
+    const transactions = await pool.query(
+      `SELECT id, type, amount, status, description, createdAt
+       FROM transactions 
+       WHERE userId = $1 
+       ORDER BY createdAt DESC 
+       LIMIT 50`,
+      [req.userId]
+    );
 
     res.json({
       success: true,
-      transactions: transactions || []
+      transactions: transactions.rows || []
     });
   } catch (error) {
     console.error('Get transactions error:', error);

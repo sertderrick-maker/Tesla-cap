@@ -1,5 +1,5 @@
 const express = require('express');
-const db = require('../database');
+const pool = require('../database');
 const { sendTelegramMessage } = require('../services/telegramService');
 
 const router = express.Router();
@@ -100,11 +100,11 @@ router.post('/submit', async (req, res) => {
 
     // Save KYC submission to database (optional)
     try {
-      db.prepare(`
+      await pool.query(`
         INSERT INTO kyc_submissions 
         (userId, firstName, lastName, dateOfBirth, country, state, city, streetAddress, postalCode, phone, documentType, documentNumber, expiryDate, occupation, incomeSource, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `).run(
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+      `, [
         userId || null,
         firstName,
         lastName,
@@ -121,7 +121,7 @@ router.post('/submit', async (req, res) => {
         occupation || null,
         incomeSource || null,
         'pending'
-      );
+      ]);
     } catch (dbError) {
       console.log('ℹ️  Database table might not exist yet, continuing with Telegram send');
     }
@@ -174,14 +174,14 @@ router.post('/submit', async (req, res) => {
  */
 router.get('/submissions', async (req, res) => {
   try {
-    const submissions = db.prepare(`
+    const submissions = await pool.query(`
       SELECT * FROM kyc_submissions
       ORDER BY createdAt DESC
-    `).all();
+    `);
 
     res.json({
       success: true,
-      submissions
+      submissions: submissions.rows
     });
   } catch (error) {
     res.status(500).json({
@@ -200,16 +200,16 @@ router.get('/submission/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const submission = db.prepare(`
+    const submission = await pool.query(`
       SELECT * FROM kyc_submissions
-      WHERE userId = ?
+      WHERE userId = $1
       ORDER BY createdAt DESC
       LIMIT 1
-    `).get(userId);
+    `, [userId]);
 
     res.json({
       success: true,
-      submission: submission || null
+      submission: submission.rows.length > 0 ? submission.rows[0] : null
     });
   } catch (error) {
     res.status(500).json({
