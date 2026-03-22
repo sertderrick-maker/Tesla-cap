@@ -1,8 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const pool = require('../database');
-const { verifyToken } = require('../utils/jwt');
+const db = require('../database');
 
 const router = express.Router();
 
@@ -14,21 +13,14 @@ const adminMiddleware = (req, res, next) => {
       return res.status(401).json({ success: false, message: 'No token provided' });
     }
 
-    const decoded = verifyToken(token);
-    if (!decoded) {
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    if (!decoded || decoded.role !== 'admin') {
       return res.status(401).json({ success: false, message: 'Invalid token' });
     }
 
-    // Check if user is admin
-    pool.query('SELECT * FROM admin_users WHERE id = $1', [decoded.userId], (err, result) => {
-      if (err || result.rows.length === 0) {
-        return res.status(403).json({ success: false, message: 'Not authorized as admin' });
-      }
-
-      req.adminId = result.rows[0].id;
-      req.admin = result.rows[0];
-      next();
-    });
+    req.adminId = decoded.userId;
+    next();
   } catch (error) {
     return res.status(401).json({ success: false, message: 'Authentication failed' });
   }
@@ -43,8 +35,9 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Username and password required' });
     }
 
-    const admin = await pool.query(
-      'SELECT * FROM admin_users WHERE username = $1 AND isActive = 1',
+    // Query admin_users table - note: isactive is lowercase
+    const admin = await db.query(
+      'SELECT * FROM admin_users WHERE username = $1 AND isactive = 1',
       [username]
     );
 
@@ -66,10 +59,17 @@ router.post('/login', async (req, res) => {
     );
 
     // Log admin login
-    await pool.query(
-      'INSERT INTO admin_logs (adminId, action, details) VALUES ($1, $2, $3)',
-      [adminUser.id, 'LOGIN', `Admin ${adminUser.username} logged in`]
-    );
+    try {
+      await db.query(
+        'INSERT INTO admin_logs (adminid, action, details) VALUES ($1, $2, $3)',
+        [adminUser.id, 'LOGIN', `Admin ${adminUser.username} logged in`]
+      );
+    } catch (logError) {
+      console.error('Error logging admin login:', logError.message);
+      // Don't fail login if logging fails
+    }
+
+    console.log(`✅ Admin logged in: ${adminUser.username}`);
 
     res.json({
       success: true,
@@ -83,6 +83,7 @@ router.post('/login', async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Admin login error:', error);
     res.status(500).json({ success: false, message: 'Login failed', error: error.message });
   }
 });
@@ -90,22 +91,22 @@ router.post('/login', async (req, res) => {
 // Get pending deposits
 router.get('/pending-deposits', adminMiddleware, async (req, res) => {
   try {
-    const deposits = await pool.query(`
+    const deposits = await db.query(`
       SELECT 
         d.id,
-        d.userId,
+        d.userid,
         d.amount,
         d.cryptocurrency,
-        d.walletAddress,
+        d.walletaddress,
         d.status,
-        d.createdAt,
-        u.firstName,
-        u.lastName,
+        d.createdat,
+        u.firstname,
+        u.lastname,
         u.email
       FROM deposits d
-      JOIN users u ON d.userId = u.id
+      JOIN users u ON d.userid = u.id
       WHERE d.status = 'pending'
-      ORDER BY d.createdAt DESC
+      ORDER BY d.createdat DESC
     `);
 
     res.json({
@@ -113,6 +114,7 @@ router.get('/pending-deposits', adminMiddleware, async (req, res) => {
       deposits: deposits.rows
     });
   } catch (error) {
+    console.error('Error fetching deposits:', error);
     res.status(500).json({ success: false, message: 'Error fetching deposits', error: error.message });
   }
 });
@@ -120,22 +122,22 @@ router.get('/pending-deposits', adminMiddleware, async (req, res) => {
 // Get all deposits
 router.get('/all-deposits', adminMiddleware, async (req, res) => {
   try {
-    const deposits = await pool.query(`
+    const deposits = await db.query(`
       SELECT 
         d.id,
-        d.userId,
+        d.userid,
         d.amount,
         d.cryptocurrency,
-        d.walletAddress,
+        d.walletaddress,
         d.status,
-        d.createdAt,
-        d.confirmedAt,
-        u.firstName,
-        u.lastName,
+        d.createdat,
+        d.confirmedat,
+        u.firstname,
+        u.lastname,
         u.email
       FROM deposits d
-      JOIN users u ON d.userId = u.id
-      ORDER BY d.createdAt DESC
+      JOIN users u ON d.userid = u.id
+      ORDER BY d.createdat DESC
     `);
 
     res.json({
@@ -143,6 +145,7 @@ router.get('/all-deposits', adminMiddleware, async (req, res) => {
       deposits: deposits.rows
     });
   } catch (error) {
+    console.error('Error fetching deposits:', error);
     res.status(500).json({ success: false, message: 'Error fetching deposits', error: error.message });
   }
 });
@@ -153,7 +156,7 @@ router.put('/confirm-deposit/:depositId', adminMiddleware, async (req, res) => {
     const { depositId } = req.params;
     const { transactionHash } = req.body;
 
-    const deposit = await pool.query('SELECT * FROM deposits WHERE id = $1', [depositId]);
+    const deposit = await db.query('SELECT * FROM deposits WHERE id = $1', [depositId]);
     if (deposit.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Deposit not found' });
     }
@@ -164,39 +167,39 @@ router.put('/confirm-deposit/:depositId', adminMiddleware, async (req, res) => {
     }
 
     // Update deposit status
-    await pool.query(
+    await db.query(
       `UPDATE deposits
-       SET status = 'confirmed', confirmedAt = CURRENT_TIMESTAMP, confirmedBy = $1, transactionHash = $2
+       SET status = 'confirmed', confirmedat = CURRENT_TIMESTAMP, confirmedby = $1, transactionhash = $2
        WHERE id = $3`,
       [req.adminId, transactionHash || null, depositId]
     );
 
     // Get or create wallet for user
-    let wallet = await pool.query(
-      'SELECT * FROM wallets WHERE userId = $1 AND currency = $2',
+    let wallet = await db.query(
+      'SELECT * FROM wallets WHERE userid = $1 AND currency = $2',
       [depositData.userid, depositData.cryptocurrency]
     );
 
     if (wallet.rows.length === 0) {
-      await pool.query(
-        'INSERT INTO wallets (userId, currency, balance) VALUES ($1, $2, $3)',
+      await db.query(
+        'INSERT INTO wallets (userid, currency, balance) VALUES ($1, $2, $3)',
         [depositData.userid, depositData.cryptocurrency, depositData.amount]
       );
-      wallet = await pool.query(
-        'SELECT * FROM wallets WHERE userId = $1 AND currency = $2',
+      wallet = await db.query(
+        'SELECT * FROM wallets WHERE userid = $1 AND currency = $2',
         [depositData.userid, depositData.cryptocurrency]
       );
     } else {
       // Update existing wallet balance
-      await pool.query(
+      await db.query(
         'UPDATE wallets SET balance = balance + $1 WHERE id = $2',
         [depositData.amount, wallet.rows[0].id]
       );
     }
 
     // Create transaction record
-    await pool.query(
-      `INSERT INTO transactions (userId, walletId, type, amount, status, description)
+    await db.query(
+      `INSERT INTO transactions (userid, walletid, type, amount, status, description)
        VALUES ($1, $2, $3, $4, $5, $6)`,
       [
         depositData.userid,
@@ -209,10 +212,12 @@ router.put('/confirm-deposit/:depositId', adminMiddleware, async (req, res) => {
     );
 
     // Log action
-    await pool.query(
-      'INSERT INTO admin_logs (adminId, action, details) VALUES ($1, $2, $3)',
+    await db.query(
+      'INSERT INTO admin_logs (adminid, action, details) VALUES ($1, $2, $3)',
       [req.adminId, 'CONFIRM_DEPOSIT', `Confirmed deposit of ${depositData.amount} ${depositData.cryptocurrency} for user ${depositData.userid}`]
     );
+
+    console.log(`✅ Deposit confirmed: ${depositId}`);
 
     res.json({
       success: true,
@@ -220,10 +225,11 @@ router.put('/confirm-deposit/:depositId', adminMiddleware, async (req, res) => {
       deposit: {
         id: depositId,
         status: 'confirmed',
-        confirmedAt: new Date().toISOString()
+        confirmedat: new Date().toISOString()
       }
     });
   } catch (error) {
+    console.error('Error confirming deposit:', error);
     res.status(500).json({ success: false, message: 'Error confirming deposit', error: error.message });
   }
 });
@@ -234,7 +240,7 @@ router.put('/reject-deposit/:depositId', adminMiddleware, async (req, res) => {
     const { depositId } = req.params;
     const { reason } = req.body;
 
-    const deposit = await pool.query('SELECT * FROM deposits WHERE id = $1', [depositId]);
+    const deposit = await db.query('SELECT * FROM deposits WHERE id = $1', [depositId]);
     if (deposit.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Deposit not found' });
     }
@@ -245,22 +251,25 @@ router.put('/reject-deposit/:depositId', adminMiddleware, async (req, res) => {
     }
 
     // Update deposit status
-    await pool.query(
+    await db.query(
       'UPDATE deposits SET status = $1 WHERE id = $2',
       ['rejected', depositId]
     );
 
     // Log action
-    await pool.query(
-      'INSERT INTO admin_logs (adminId, action, details) VALUES ($1, $2, $3)',
+    await db.query(
+      'INSERT INTO admin_logs (adminid, action, details) VALUES ($1, $2, $3)',
       [req.adminId, 'REJECT_DEPOSIT', `Rejected deposit of ${depositData.amount} ${depositData.cryptocurrency} for user ${depositData.userid}. Reason: ${reason || 'No reason provided'}`]
     );
+
+    console.log(`✅ Deposit rejected: ${depositId}`);
 
     res.json({
       success: true,
       message: 'Deposit rejected successfully'
     });
   } catch (error) {
+    console.error('Error rejecting deposit:', error);
     res.status(500).json({ success: false, message: 'Error rejecting deposit', error: error.message });
   }
 });
@@ -268,8 +277,8 @@ router.put('/reject-deposit/:depositId', adminMiddleware, async (req, res) => {
 // Get crypto addresses (ADMIN ONLY)
 router.get('/crypto-addresses', adminMiddleware, async (req, res) => {
   try {
-    const addresses = await pool.query(`
-      SELECT id, cryptocurrency, symbol, address, isActive, createdAt, updatedAt
+    const addresses = await db.query(`
+      SELECT id, cryptocurrency, symbol, address, isactive, createdat, updatedat
       FROM crypto_addresses
       ORDER BY symbol ASC
     `);
@@ -279,6 +288,7 @@ router.get('/crypto-addresses', adminMiddleware, async (req, res) => {
       addresses: addresses.rows
     });
   } catch (error) {
+    console.error('Error fetching addresses:', error);
     res.status(500).json({ success: false, message: 'Error fetching addresses', error: error.message });
   }
 });
@@ -286,10 +296,10 @@ router.get('/crypto-addresses', adminMiddleware, async (req, res) => {
 // PUBLIC: Get crypto addresses (NO AUTHENTICATION REQUIRED)
 router.get('/crypto-addresses-public', async (req, res) => {
   try {
-    const addresses = await pool.query(`
-      SELECT id, cryptocurrency, symbol, address, isActive, createdAt, updatedAt
+    const addresses = await db.query(`
+      SELECT id, cryptocurrency, symbol, address, isactive, createdat, updatedat
       FROM crypto_addresses
-      WHERE isActive = 1
+      WHERE isactive = 1
       ORDER BY symbol ASC
     `);
 
@@ -298,6 +308,7 @@ router.get('/crypto-addresses-public', async (req, res) => {
       addresses: addresses.rows
     });
   } catch (error) {
+    console.error('Error fetching addresses:', error);
     res.status(500).json({ success: false, message: 'Error fetching addresses', error: error.message });
   }
 });
@@ -312,22 +323,24 @@ router.put('/crypto-address/:id', adminMiddleware, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Address is required' });
     }
 
-    const cryptoAddress = await pool.query('SELECT * FROM crypto_addresses WHERE id = $1', [id]);
+    const cryptoAddress = await db.query('SELECT * FROM crypto_addresses WHERE id = $1', [id]);
     if (cryptoAddress.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Crypto address not found' });
     }
 
     const crypto = cryptoAddress.rows[0];
-    await pool.query(
-      'UPDATE crypto_addresses SET address = $1, updatedAt = CURRENT_TIMESTAMP WHERE id = $2',
+    await db.query(
+      'UPDATE crypto_addresses SET address = $1, updatedat = CURRENT_TIMESTAMP WHERE id = $2',
       [address, id]
     );
 
     // Log action
-    await pool.query(
-      'INSERT INTO admin_logs (adminId, action, details) VALUES ($1, $2, $3)',
+    await db.query(
+      'INSERT INTO admin_logs (adminid, action, details) VALUES ($1, $2, $3)',
       [req.adminId, 'UPDATE_ADDRESS', `Updated ${crypto.symbol} address to ${address}`]
     );
+
+    console.log(`✅ Address updated: ${crypto.symbol}`);
 
     res.json({
       success: true,
@@ -339,79 +352,18 @@ router.put('/crypto-address/:id', adminMiddleware, async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Error updating address:', error);
     res.status(500).json({ success: false, message: 'Error updating address', error: error.message });
-  }
-});
-
-// Get all users
-router.get('/users', adminMiddleware, async (req, res) => {
-  try {
-    const users = await pool.query(`
-      SELECT 
-        u.id,
-        u.firstName,
-        u.lastName,
-        u.email,
-        u.createdAt,
-        COUNT(DISTINCT d.id) as totalDeposits,
-        COALESCE(SUM(d.amount), 0) as totalDepositAmount
-      FROM users u
-      LEFT JOIN deposits d ON u.id = d.userId AND d.status = 'confirmed'
-      GROUP BY u.id
-      ORDER BY u.createdAt DESC
-    `);
-
-    res.json({
-      success: true,
-      users: users.rows
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Error fetching users', error: error.message });
-  }
-});
-
-// Get user details
-router.get('/user/:userId', adminMiddleware, async (req, res) => {
-  try {
-    const { userId } = req.params;
-
-    const user = await pool.query('SELECT id, firstName, lastName, email, createdAt FROM users WHERE id = $1', [userId]);
-    if (user.rows.length === 0) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    const wallets = await pool.query('SELECT * FROM wallets WHERE userId = $1', [userId]);
-    const deposits = await pool.query('SELECT * FROM deposits WHERE userId = $1 ORDER BY createdAt DESC', [userId]);
-    const transactions = await pool.query('SELECT * FROM transactions WHERE userId = $1 ORDER BY createdAt DESC', [userId]);
-
-    res.json({
-      success: true,
-      user: {
-        ...user.rows[0],
-        wallets: wallets.rows,
-        deposits: deposits.rows,
-        transactions: transactions.rows
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Error fetching user details', error: error.message });
   }
 });
 
 // Get admin logs
 router.get('/logs', adminMiddleware, async (req, res) => {
   try {
-    const logs = await pool.query(`
-      SELECT 
-        l.id,
-        l.adminId,
-        l.action,
-        l.details,
-        l.createdAt,
-        a.username
-      FROM admin_logs l
-      JOIN admin_users a ON l.adminId = a.id
-      ORDER BY l.createdAt DESC
+    const logs = await db.query(`
+      SELECT id, adminid, action, details, createdat
+      FROM admin_logs
+      ORDER BY createdat DESC
       LIMIT 100
     `);
 
@@ -420,6 +372,7 @@ router.get('/logs', adminMiddleware, async (req, res) => {
       logs: logs.rows
     });
   } catch (error) {
+    console.error('Error fetching logs:', error);
     res.status(500).json({ success: false, message: 'Error fetching logs', error: error.message });
   }
 });
@@ -427,23 +380,20 @@ router.get('/logs', adminMiddleware, async (req, res) => {
 // Get dashboard stats
 router.get('/stats', adminMiddleware, async (req, res) => {
   try {
-    const totalUsers = await pool.query('SELECT COUNT(*) as count FROM users');
-    const totalDeposits = await pool.query('SELECT COUNT(*) as count FROM deposits');
-    const pendingDeposits = await pool.query('SELECT COUNT(*) as count FROM deposits WHERE status = $1', ['pending']);
-    const confirmedDeposits = await pool.query('SELECT COUNT(*) as count FROM deposits WHERE status = $1', ['confirmed']);
-    const totalDepositAmount = await pool.query('SELECT COALESCE(SUM(amount), 0) as total FROM deposits WHERE status = $1', ['confirmed']);
+    const totalUsers = await db.query('SELECT COUNT(*) as count FROM users');
+    const totalDeposits = await db.query('SELECT SUM(amount) as total FROM deposits WHERE status = \'confirmed\'');
+    const pendingDeposits = await db.query('SELECT COUNT(*) as count FROM deposits WHERE status = \'pending\'');
 
     res.json({
       success: true,
       stats: {
         totalUsers: parseInt(totalUsers.rows[0].count),
-        totalDeposits: parseInt(totalDeposits.rows[0].count),
-        pendingDeposits: parseInt(pendingDeposits.rows[0].count),
-        confirmedDeposits: parseInt(confirmedDeposits.rows[0].count),
-        totalDepositAmount: parseFloat(totalDepositAmount.rows[0].total)
+        totalDeposits: totalDeposits.rows[0].total || 0,
+        pendingDeposits: parseInt(pendingDeposits.rows[0].count)
       }
     });
   } catch (error) {
+    console.error('Error fetching stats:', error);
     res.status(500).json({ success: false, message: 'Error fetching stats', error: error.message });
   }
 });
