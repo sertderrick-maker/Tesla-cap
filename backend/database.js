@@ -25,7 +25,7 @@ async function initializeDatabase() {
         isVerified INTEGER DEFAULT 0,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
+      )
     `);
     console.log('✅ Users table created');
 
@@ -41,7 +41,7 @@ async function initializeDatabase() {
         updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
         UNIQUE(userId, currency)
-      );
+      )
     `);
     console.log('✅ Wallets table created');
 
@@ -59,7 +59,7 @@ async function initializeDatabase() {
         updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
         FOREIGN KEY (walletId) REFERENCES wallets(id) ON DELETE CASCADE
-      );
+      )
     `);
     console.log('✅ Transactions table created');
 
@@ -75,7 +75,7 @@ async function initializeDatabase() {
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
-      );
+      )
     `);
     console.log('✅ Investments table created');
 
@@ -94,7 +94,7 @@ async function initializeDatabase() {
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
-      );
+      )
     `);
     console.log('✅ Deposits table created');
 
@@ -108,7 +108,7 @@ async function initializeDatabase() {
         role TEXT DEFAULT 'admin',
         isActive INTEGER DEFAULT 1,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
+      )
     `);
     console.log('✅ Admin users table created');
 
@@ -122,7 +122,7 @@ async function initializeDatabase() {
         isActive INTEGER DEFAULT 1,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
+      )
     `);
     console.log('✅ Crypto addresses table created');
 
@@ -135,7 +135,7 @@ async function initializeDatabase() {
         details TEXT,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (adminId) REFERENCES admin_users(id) ON DELETE CASCADE
-      );
+      )
     `);
     console.log('✅ Admin logs table created');
 
@@ -188,56 +188,5 @@ async function initializeDatabase() {
 // Initialize on startup
 initializeDatabase();
 
-// Create a wrapper that mimics better-sqlite3 API
-const db = {
-  prepare: (sql) => {
-    return {
-      run: async (...params) => {
-        try {
-          const result = await pool.query(sql, params);
-          return { changes: result.rowCount, lastID: result.rows[0]?.id };
-        } catch (error) {
-          console.error('Query error:', error);
-          throw error;
-        }
-      },
-      get: async (...params) => {
-        try {
-          const result = await pool.query(sql, params);
-          return result.rows[0];
-        } catch (error) {
-          console.error('Query error:', error);
-          throw error;
-        }
-      },
-      all: async (...params) => {
-        try {
-          const result = await pool.query(sql, params);
-          return result.rows;
-        } catch (error) {
-          console.error('Query error:', error);
-          throw error;
-        }
-      }
-    };
-  },
-  exec: async (sql) => {
-    try {
-      return await pool.query(sql);
-    } catch (error) {
-      console.error('Query error:', error);
-      throw error;
-    }
-  },
-  query: async (sql, params) => {
-    try {
-      return await pool.query(sql, params);
-    } catch (error) {
-      console.error('Query error:', error);
-      throw error;
-    }
-  }
-};
-
-module.exports = db;
-module.exports.pool = pool;
+// Export pool directly
+module.exports = pool;
